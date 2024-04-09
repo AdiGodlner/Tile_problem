@@ -28,16 +28,20 @@ class Window(ttb.Window):
         header_label.pack(pady=20)
 
         # Create tabs
-        options_frame = OptionsTab(self.notebook, self.theme_name)
+        options_frame = OptionsTab(self.notebook, self.theme_name, self.set_theme)
         game_frame = GameTab(self.notebook, options_frame.get_option)
-        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
 
         # Add tabs to notebook
         self.notebook.add(options_frame, text="Options")
         self.notebook.add(game_frame, text="Game")
 
+        # Bind Tab changing event
+        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
         # Pack notebook to fill window
         self.notebook.pack(fill=ttb.BOTH, expand=True)
+
+    def set_theme(self, theme):
+        self.style.theme_use(theme)
 
     def on_tab_changed(self, event):
         notebook_widget = event.widget

@@ -6,32 +6,29 @@ def get_algo_options():
 
 
 def get_themes():
-    return ["cerulean",
-            "cosmo",
-            "cyborg",
-            "darkly",
+    return ["cosmo",
             "flatly",
-            "journal",
+            "jornal",
             "litera",
             "lumen",
-            "lux",
-            "materia",
             "minty",
             "pulse",
-            "sandstone",
-            "simplex",
-            "sketchy",
-            "slate",
-            "solar",
-            "spacelab",
-            "superhero",
+            "sandsone",
             "united",
-            "yeti"]
+            "yeti",
+            "morph",
+            "simplex",
+            "cerculean",
+            "solar",
+            "superhero",
+            "darkly",
+            "cyborg",
+            "vapor"]
 
 
 class OptionsTab(ttb.Frame):
 
-    def __init__(self, parent, theme):
+    def __init__(self, parent, theme, set_theme):
         super().__init__(parent)
 
         self.selected_algorithm = ttb.StringVar(value="BFS")
@@ -40,6 +37,7 @@ class OptionsTab(ttb.Frame):
         self.options = {"algorithm": self.selected_algorithm,
                         "theme": self.theme_var,
                         "size": self.size_var}
+        self.set_theme = set_theme
         self.create_widgets()
 
     def on_view(self):
@@ -68,8 +66,19 @@ class OptionsTab(ttb.Frame):
         theme_label = ttb.Label(self, text="Theme:")
         theme_label.grid(row=0, column=1, sticky="w")
 
-        theme_combobox = ttb.Combobox(self, textvariable=self.theme_var, values=get_themes())
-        theme_combobox.grid(row=1, column=1, sticky="w")
+        theme_menu = ttb.Menubutton(self, textvariable=self.theme_var)
+        theme_menu.grid(row=1, column=1, sticky="w")
+        theme_menu_options = ttb.Menu(theme_menu)
+        for theme in get_themes():
+            theme_menu_options.add_radiobutton(label=theme,
+                                               variable=self.theme_var,
+                                               command=self.on_theme_change)
+
+        theme_menu.config(menu=theme_menu_options)
+
+    def on_theme_change(self):
+        new_theme = self.theme_var.get()
+        self.set_theme(new_theme)
 
     def get_option(self, option):
         return self.options.get(option).get()
