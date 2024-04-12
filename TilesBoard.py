@@ -1,6 +1,7 @@
 from Tile import Tile
 import tkinter as tk
 from math import copysign
+import random
 
 
 class TilesBoard(tk.Frame):
@@ -22,24 +23,36 @@ class TilesBoard(tk.Frame):
 
     def create_board(self, board_size):
 
-        board = []
+        num_board = generate_num_board(board_size)
+        self.board = self.num_board_to_tiles(num_board)
+        self.place_board()
+        #
 
-        for row in range(board_size):
-            board_row = []
-            board.append(board_row)
-            for col in range(board_size):
+    def num_board_to_tiles(self, num_board):
 
-                number = row * board_size + col
-                tileBtn = Tile(self, number, row, col, self.enabled, self.game_move)
-                board_row.append(tileBtn)
+        tiles_board = []
+        for row_index, row in enumerate(num_board):
+
+            tiles_row = []
+            tiles_board.append(tiles_row)
+            for col, num in enumerate(row):
+
+                tileBtn = Tile(self, num, row_index, col, self.enabled, self.game_move)
+                tiles_row.append(tileBtn)
                 # skip placing 0 tile
-                if number != 0:
-                    x, y = self.calc_position(row, col)
-                    tileBtn.place(x=x, y=y)
-                else:
+                if num == 0:
                     self.zero_tile = tileBtn
 
-        self.board = board
+        return tiles_board
+
+    def place_board(self):
+
+        for row in self.board:
+            for tile in row:
+                num = tile.number
+                if num != 0:
+                    x, y = self.calc_position(tile.row, tile.col)
+                    tile.place(x=x, y=y)
 
     def game_move(self, tile):
 
@@ -106,3 +119,62 @@ class TilesBoard(tk.Frame):
                 tile.destroy()
 
         self.board = []
+
+
+def generate_num_board(board_size):
+    num_board = []
+    # create the goal state of the board
+    for row in range(board_size):
+
+        board_row = []
+        num_board.append(board_row)
+        for col in range(board_size):
+            number = row * board_size + col
+            board_row.append(number)
+
+    # make board random yet solvable by playing 100 random moves
+    make_random_moves(num_board, board_size, 0, 0)
+    return num_board
+
+
+def make_random_moves(board, board_size, zero_row, zero_col):
+    for _ in range(100):
+        possible_moves = findPossibleMoves(board_size, zero_row, zero_col)
+        random_move = random.choice(possible_moves)
+        # swap tiles
+        row = random_move[0]
+        col = random_move[1]
+        num = board[row][col]
+        board[zero_row][zero_col] = num
+        board[row][col] = 0
+        zero_row = row
+        zero_col = col
+
+
+def findPossibleMoves(board_size, zeroRow, zeroCol):
+    """
+    this method creates a list of possible moves in a 3*3 board
+    based on the current location of the empty space marked as 0
+    the location of zero is given by zeroRow and zeroCol as mention below
+    :param zeroRow: (int) the row in the board where zero is
+    :param zeroCol: (int) the column in the board where zero is
+    :return: a list of tuples each tuple is a position of a tile on the board that can be moved
+    """
+    possibleMoves = []
+    if zeroRow != 0:
+        # move zero up
+        possibleMoves.append((zeroRow - 1, zeroCol))
+
+    if zeroRow != board_size - 1:
+        # move zero down
+        possibleMoves.append((zeroRow + 1, zeroCol))
+
+    if zeroCol != 0:
+        # move zero left
+        possibleMoves.append((zeroRow, zeroCol - 1))
+
+    if zeroCol != board_size - 1:
+        # move zero right
+        possibleMoves.append((zeroRow, zeroCol + 1))
+
+    return possibleMoves

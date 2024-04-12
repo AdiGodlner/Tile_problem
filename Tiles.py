@@ -38,33 +38,7 @@ def generateGoalState():
     return board
 
 
-def findPossibleMoves(zeroRow, zeroCol):
-    """
-    this method creates a list of possible moves in a 3*3 board
-    based on the current location of the empty space marked as 0
-    the location of zero is given by zeroRow and zeroCol as mention below
-    :param zeroRow: (int) the row in the board where zero is
-    :param zeroCol: (int) the column in the board where zero is
-    :return: a list of tuples each tuple is a position of a tile on the board that can be moved
-    """
-    possibleMoves = []
-    if zeroRow != 0:
-        # move zero up
-        possibleMoves.append((zeroRow - 1, zeroCol))
 
-    if zeroRow != 2:
-        # move zero down
-        possibleMoves.append((zeroRow + 1, zeroCol))
-
-    if zeroCol != 0:
-        # move zero left
-        possibleMoves.append((zeroRow, zeroCol - 1))
-
-    if zeroCol != 2:
-        # move zero right
-        possibleMoves.append((zeroRow, zeroCol + 1))
-
-    return possibleMoves
 
 
 def findChildStates(currState):
