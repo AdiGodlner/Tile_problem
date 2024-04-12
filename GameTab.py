@@ -1,29 +1,26 @@
-import ttkbootstrap as ttb
+import tkinter as tk
+from TilesBoard import TilesBoard
 
-my_index = 1
 
-
-class GameTab(ttb.Frame):
+class GameTab(tk.Frame):
 
     def __init__(self, parent, get_options):
         super().__init__(parent)
         self.get_options = get_options
-        # Create grid of numbers
-        self.create_number_grid()
+        self.user_board = TilesBoard(self, True)
+        self.computer_board = TilesBoard(self, False)
 
-        # Create timer
-        self.timer_label = ttb.Label(self, text="00:00", font=("Arial", 16))
-        self.timer_label.grid(row=1, column=0, pady=10)
+        tk.Label(self, text="User").pack()
+        self.user_board.pack(fill="both", expand=1)
 
-    def create_number_grid(self):
-        size = self.get_options("size")
-        for i in range(size):
-            for j in range(size):
-                label = ttb.Label(self, text=f"{i * size + j + 1}", font=("Arial", 12))
-                label.grid(row=i + 2, column=j, padx=5, pady=5)
-
-    def update_timer(self, time_str):
-        self.timer_label.config(text=time_str)
+        tk.Label(self, text="Computer").pack()
+        self.computer_board.pack(fill="both", expand=1)
 
     def on_view(self):
-        self.create_number_grid()
+        # clear board
+        self.user_board.clear_board()
+        self.computer_board.clear_board()
+        # create Board
+        size = self.get_options("size")
+        self.user_board.create_board(size)
+        self.computer_board.create_board(size)

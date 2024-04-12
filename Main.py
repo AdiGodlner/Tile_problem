@@ -2,8 +2,7 @@ from Window import Window
 
 
 def main():
-    window = Window(themename="superhero",
-                    title="Tile game solver")
+    window = Window(title="Tile game solver")
     window.mainloop()
 
 

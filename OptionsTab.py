@@ -1,4 +1,4 @@
-import ttkbootstrap as ttb
+import tkinter as tk
 
 
 def get_algo_options():
@@ -13,7 +13,7 @@ def get_themes():
             "lumen",
             "minty",
             "pulse",
-            "sandsone",
+            "sandstone",
             "united",
             "yeti",
             "morph",
@@ -26,14 +26,14 @@ def get_themes():
             "vapor"]
 
 
-class OptionsTab(ttb.Frame):
+class OptionsTab(tk.Frame):
 
     def __init__(self, parent, theme, set_theme):
         super().__init__(parent)
 
-        self.selected_algorithm = ttb.StringVar(value="BFS")
-        self.theme_var = ttb.StringVar(value=theme)
-        self.size_var = ttb.IntVar(value=3)
+        self.selected_algorithm = tk.StringVar(value="BFS")
+        self.theme_var = tk.StringVar(value=theme)
+        self.size_var = tk.IntVar(value=3)
         self.options = {"algorithm": self.selected_algorithm,
                         "theme": self.theme_var,
                         "size": self.size_var}
@@ -45,30 +45,30 @@ class OptionsTab(ttb.Frame):
 
     def create_widgets(self):
         # Create search algorithms section
-        search_algorithms_label = ttb.Label(self, text="Search Algorithms:")
+        search_algorithms_label = tk.Label(self, text="Search Algorithms:")
         search_algorithms_label.grid(row=0, column=0, sticky="w")
 
         #  create radio btn options for possible search algorithms
         for i, option in enumerate(get_algo_options()):
-            btn = ttb.Radiobutton(self, text=option,
-                                  variable=self.selected_algorithm,
-                                  value=option)
+            btn = tk.Radiobutton(self, text=option,
+                                 variable=self.selected_algorithm,
+                                 value=option)
             btn.grid(row=i + 1, column=0, sticky="w")
 
         # Create size selection section
-        size_label = ttb.Label(self, text="Size:")
+        size_label = tk.Label(self, text="Size:")
         size_label.grid(row=0, column=2, sticky="w")
-        size_spinbox = ttb.Spinbox(self, from_=2, to=10,
-                                   textvariable=self.size_var, width=5)
+        size_spinbox = tk.Spinbox(self, from_=2, to=10,
+                                  textvariable=self.size_var, width=5)
         size_spinbox.grid(row=1, column=2, sticky="w")
 
         # Create theme selection section
-        theme_label = ttb.Label(self, text="Theme:")
+        theme_label = tk.Label(self, text="Theme:")
         theme_label.grid(row=0, column=1, sticky="w")
 
-        theme_menu = ttb.Menubutton(self, textvariable=self.theme_var)
+        theme_menu = tk.Menubutton(self, textvariable=self.theme_var)
         theme_menu.grid(row=1, column=1, sticky="w")
-        theme_menu_options = ttb.Menu(theme_menu)
+        theme_menu_options = tk.Menu(theme_menu)
         for theme in get_themes():
             theme_menu_options.add_radiobutton(label=theme,
                                                variable=self.theme_var,
