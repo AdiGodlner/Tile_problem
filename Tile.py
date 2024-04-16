@@ -6,19 +6,24 @@ class Tile(tk.Button):
         super().__init__(parent, text=str(number),
                          width=2,
                          command=self.on_click)
+        self.parent = parent
         self.number = number
         self.row = row
         self.col = col
         self.game_move = game_move
         self.enabled = enabled
-        # Create a label widget for the tile
-        # Adjust the width and height of each tile
-        # self.config(width=5, borderwidth=1, relief="raised", padding=10)
-        # Bind click event to the label
         if not enabled:
-            self.configure(state="disabled")
+            self.disable()
+
+    def copy(self, parent, enabled=True):
+        new_tile = Tile(parent, self.number, self.row, self.col, enabled, self.game_move)
+        return new_tile
+
+    def disable(self):
+        self.configure(state="disabled")
+
+    def enable(self):
+        self.configure(state="normal")
 
     def on_click(self):
-        # print(f"clicked {self.number} | row {self.row}, col = {self.col} | enabled {self.enabled}")
-
         self.game_move(self)

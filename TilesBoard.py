@@ -6,15 +6,33 @@ import random
 
 class TilesBoard(tk.Frame):
 
-    def __init__(self, parent, enabled, tile_width=2, tile_height=2):
+    def __init__(self, parent, enabled):
         super().__init__(parent, width=400, height=400, bg="red")
+        self.parent = parent
         self.board = []
         self.enabled = enabled
         self.zero_tile = None
-        self.board_size = 0
         self.start_pos = 150
         self.btn_size = 40
         self.gap = 20
+
+    def copy_board(self, tiles_board_to_copy):
+
+        board_copy = []
+        # iterate through the rows of the original board
+        for row in tiles_board_to_copy.board:
+            # create a new list by copying the elements of each row
+            new_row = []
+            board_copy.append(new_row)
+            for tile in row:
+                new_row.append(tile.copy(self, self.enabled))
+
+        self.board = board_copy
+
+    def disable(self):
+        for row in self.board:
+            for tile in row:
+                tile.disable()
 
     def calc_position(self, row, col):
         x = self.start_pos + (col * (self.btn_size + self.gap))
@@ -48,6 +66,7 @@ class TilesBoard(tk.Frame):
     def place_board(self):
 
         for row in self.board:
+
             for tile in row:
                 num = tile.number
                 if num != 0:
@@ -91,15 +110,15 @@ class TilesBoard(tk.Frame):
 
     def check_solved(self):
         # Check if all tiles are in their correct positions
+        board_size = len(self.board)
         for i, row in enumerate(self.board):
             for j, tile in enumerate(row):
-                if int(tile["text"]) != i * self.board_size + j:
+                number = tile["text"]
+                if int(number) != (i * board_size) + j:
                     return
-        print("Congratulations! Puzzle solved!")
 
-        for row in self.board:
-            for tile in row:
-                print(tile.number)
+        print("Congratulations! Puzzle solved!")
+        self.disable()
 
     def animate_move(self, tile, origin_x, origin_y, dest_x, dest_y, x_direction, y_direction):
         if origin_x != dest_x or origin_y != dest_y:

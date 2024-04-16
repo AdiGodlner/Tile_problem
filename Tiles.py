@@ -402,18 +402,7 @@ def reconstructPath(parent, parentMove, reached):
     return path
 
 
-def deepCopy(board):
-    """
-    creates a deep copy of a 2D board.
-    :param board: (list of lists) the original 2D board to be copied
-    :return: (list of lists) a new 2D board that is a deep copy of the original
-    """
-    boardCopy = []
-    # iterate through the rows of the original board
-    for i in range(len(board)):
-        # create a new list by copying the elements of each row
-        boardCopy.append(board[i].copy())
-    return boardCopy
+
 
 
 def transpose(board):

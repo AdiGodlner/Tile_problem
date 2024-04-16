@@ -1,3 +1,4 @@
+import copy
 import tkinter as tk
 from TilesBoard import TilesBoard
 
@@ -8,11 +9,11 @@ class GameTab(tk.Frame):
         super().__init__(parent)
         self.get_options = get_options
         self.user_board = TilesBoard(self, True)
-        self.computer_board = TilesBoard(self, False)
-
         tk.Label(self, text="User").pack()
         self.user_board.pack(fill="both", expand=1)
 
+        # self.computer_board = self.user_board.copy(self, False)
+        self.computer_board = TilesBoard(self, False)
         tk.Label(self, text="Computer").pack()
         self.computer_board.pack(fill="both", expand=1)
 
@@ -20,7 +21,7 @@ class GameTab(tk.Frame):
         # clear board
         self.user_board.clear_board()
         self.computer_board.clear_board()
-        # create Board
         size = self.get_options("size")
         self.user_board.create_board(size)
-        self.computer_board.create_board(size)
+        self.computer_board.copy_board(self.user_board)
+        self.computer_board.place_board()
