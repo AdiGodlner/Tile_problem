@@ -1,8 +1,9 @@
 import tkinter as tk
+from Tiles import ALGO_MAP
 
 
 def get_algo_options():
-    return ["BFS", "IDDFS", "Greedy", "A*"]
+    return ALGO_MAP.keys()
 
 
 def get_themes():

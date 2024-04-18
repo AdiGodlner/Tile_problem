@@ -1,3 +1,5 @@
+import numpy as np
+
 from Tile import Tile
 import tkinter as tk
 from math import copysign
@@ -6,9 +8,11 @@ import random
 
 class TilesBoard(tk.Frame):
 
-    def __init__(self, parent, enabled):
+    def __init__(self, parent, name, enabled, check_solved):
         super().__init__(parent, width=400, height=400, bg="red")
         self.parent = parent
+        self.name = name
+        self.check_solved = check_solved
         self.board = []
         self.enabled = enabled
         self.zero_tile = None
@@ -16,18 +20,22 @@ class TilesBoard(tk.Frame):
         self.btn_size = 40
         self.gap = 20
 
-    def copy_board(self, tiles_board_to_copy):
+    def copy_board(self, original_tiles_board):
 
-        board_copy = []
-        # iterate through the rows of the original board
-        for row in tiles_board_to_copy.board:
-            # create a new list by copying the elements of each row
-            new_row = []
-            board_copy.append(new_row)
+        original_board = original_tiles_board.board
+        new_board = np.empty_like(original_board)
+
+        for i, row in enumerate(original_board):
+            for j, tile in enumerate(row):
+                new_board[i, j] = tile.copy(self, self.enabled)
+
+        self.board = new_board
+
+    def enable(self):
+        # TODO vecotirze ?
+        for row in self.board:
             for tile in row:
-                new_row.append(tile.copy(self, self.enabled))
-
-        self.board = board_copy
+                tile.enable()
 
     def disable(self):
         for row in self.board:
@@ -48,23 +56,35 @@ class TilesBoard(tk.Frame):
 
     def num_board_to_tiles(self, num_board):
 
-        tiles_board = []
+        tiles_board = np.empty_like(num_board, dtype=object)
+
         for row_index, row in enumerate(num_board):
 
-            tiles_row = []
-            tiles_board.append(tiles_row)
             for col, num in enumerate(row):
 
                 tileBtn = Tile(self, num, row_index, col, self.enabled, self.game_move)
-                tiles_row.append(tileBtn)
+                tiles_board[row_index, col] = tileBtn
                 # skip placing 0 tile
                 if num == 0:
                     self.zero_tile = tileBtn
 
         return tiles_board
 
-    def place_board(self):
+    def get_num_board(self):
 
+        board_size = len(self.board)
+        num_board = np.empty_like(self.board)
+        bored_tiles = np.zeros(board_size * board_size)
+
+        for i, row in enumerate(self.board):
+
+            for j, tile in enumerate(row):
+                num_board[i, j] = tile.number
+                bored_tiles[tile.number] = tile.number
+
+        return num_board
+
+    def place_board(self):
         for row in self.board:
 
             for tile in row:
@@ -102,23 +122,11 @@ class TilesBoard(tk.Frame):
             self.zero_tile.row = row
 
             # change position on board matrix
-            self.board[row][col] = self.zero_tile
-            self.board[zero_row][zero_col] = tile
+            self.board[row, col] = self.zero_tile
+            self.board[zero_row, zero_col] = tile
 
             # After moving the tile, check if the puzzle is solved
-            self.check_solved()
-
-    def check_solved(self):
-        # Check if all tiles are in their correct positions
-        board_size = len(self.board)
-        for i, row in enumerate(self.board):
-            for j, tile in enumerate(row):
-                number = tile["text"]
-                if int(number) != (i * board_size) + j:
-                    return
-
-        print("Congratulations! Puzzle solved!")
-        self.disable()
+            self.check_solved(self)
 
     def animate_move(self, tile, origin_x, origin_y, dest_x, dest_y, x_direction, y_direction):
         if origin_x != dest_x or origin_y != dest_y:
@@ -128,7 +136,8 @@ class TilesBoard(tk.Frame):
             tile.place(x=new_place_x, y=new_place_y)
 
             self.after(10,
-                       lambda: self.animate_move(tile, new_place_x, new_place_y, dest_x, dest_y, x_direction,
+                       lambda: self.animate_move(tile, new_place_x, new_place_y,
+                                                 dest_x, dest_y, x_direction,
                                                  y_direction))
 
     def clear_board(self):
@@ -137,19 +146,11 @@ class TilesBoard(tk.Frame):
             for tile in row:
                 tile.destroy()
 
-        self.board = []
+        self.board = None
 
 
 def generate_num_board(board_size):
-    num_board = []
-    # create the goal state of the board
-    for row in range(board_size):
-
-        board_row = []
-        num_board.append(board_row)
-        for col in range(board_size):
-            number = row * board_size + col
-            board_row.append(number)
+    num_board = np.arange(board_size * board_size).reshape((board_size, board_size))
 
     # make board random yet solvable by playing 100 random moves
     make_random_moves(num_board, board_size, 0, 0)
@@ -163,9 +164,9 @@ def make_random_moves(board, board_size, zero_row, zero_col):
         # swap tiles
         row = random_move[0]
         col = random_move[1]
-        num = board[row][col]
-        board[zero_row][zero_col] = num
-        board[row][col] = 0
+        num = board[row, col]
+        board[zero_row, zero_col] = num
+        board[row, col] = 0
         zero_row = row
         zero_col = col
 

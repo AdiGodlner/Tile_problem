@@ -20,25 +20,13 @@ python3 Tiles.py 0 6 4 7 3 5 1 2 8
 import argparse
 import sys
 import heapq
-from builtins import print
 from queue import Queue
+import TilesBoard
 
 
-def generateGoalState():
-    """
-    this method generates a board with the goal state
-
-    0  1  2
-    3  4  5
-    6  7  8
-
-    :return: a list of a list containing the goal state mentioned in the assignment papers
-    """
-    board = [[j + i * 3 for j in range(3)] for i in range(3)]
+def generateGoalState(size):
+    board = [[j + i * size for j in range(size)] for i in range(3)]
     return board
-
-
-
 
 
 def findChildStates(currState):
@@ -54,7 +42,7 @@ def findChildStates(currState):
     childStates = []
     # find the coordinates of the zero tile
     zeroRow, zeroCol = findZero(currState)
-    possibleMoves = findPossibleMoves(zeroRow, zeroCol)
+    possibleMoves = TilesBoard.findPossibleMoves(zeroRow, zeroCol)
 
     # generate child states by making moves
     for move in possibleMoves:
@@ -98,7 +86,7 @@ def findZero(board):
                 return i, j
 
 
-def BFS(board, goalState):
+def BFS(board):
     """
     a graph search implementation of BFS (Breadth-First Search) for the 3*3 sliding tile problem
     this function finds an optimal path from a state 'board' to 'goalState'
@@ -106,11 +94,11 @@ def BFS(board, goalState):
     using legal sliding tile moves as described in the assignment
 
     :param board: (list of lists) the current state of the 3*3 board
-    :param goalState: (list of lists) the state of the 3*3 board we want to get to
     :return: the path (list) which is a list of the tile values that we need to move in order to get
     from the starting state to the goal state ( returns None if there is no such path )
     and an integer number of the number of states it evaluated until reaching that state
     """
+    goal = generateGoalState(len(board))
     totalChecks = 0
     # a dict containing a state as key and a (parentState ,move ) tuple as value
     reached = {}
@@ -125,7 +113,7 @@ def BFS(board, goalState):
         currState, parent, parentMove = frontier.get()
         totalChecks += 1
 
-        if goalState == currState:
+        if goal == currState:
             path = reconstructPath(parent, parentMove, reached)
             return path, totalChecks
 
@@ -145,7 +133,7 @@ def BFS(board, goalState):
     return None, totalChecks
 
 
-def IDDFS(board, goalState):
+def IDDFS(board):
     """
     implementation of IDDFS (Iterative Deepening Depth-First Search) for the 3*3 sliding tile problem
     this function finds an optimal path from a state 'board' to 'goalState'
@@ -153,7 +141,6 @@ def IDDFS(board, goalState):
     using legal sliding tile moves as described in the assignment
 
     :param board: (list of lists) the current state of the 3*3 board
-    :param goalState: (list of lists) the state of the 3*3 board we want to get to
     :return: the path (list) which is a list of the tile values that we need to move in order to get
     from the starting state to the goal state ( returns None if there is no such path )
     and an integer number of the number of states it evaluated until reaching that state
@@ -162,6 +149,7 @@ def IDDFS(board, goalState):
     # even thou reached states are already saved to path this does not
     # increase the asymptotic memory consumption
     # because depthLimitedSearch makes sure that 'path' and 'reached' have the same elements
+    goal = generateGoalState(len(board))
     reached = set()
     path = []
     depth = 0
@@ -169,7 +157,7 @@ def IDDFS(board, goalState):
     # IDDFS needs to stop somewhere if there is no solution so 30 seams as good as any
     while depth < 30:
 
-        foundSolution, currChecks = depthLimitedSearch(board, goalState, path, reached, depth)
+        foundSolution, currChecks = depthLimitedSearch(board, goal, path, reached, depth)
         depth += 1
         totalChecks += currChecks
 
@@ -230,7 +218,7 @@ def depthLimitedSearch(currState, goalState, path, reached, maxDepth):
     return False, totalChecks
 
 
-def GBFS(board, goalState):
+def GBFS(board):
     """
     implementation of GBFS (Greedy Best-First Search) for the 3*3 sliding tile problem
     this function finds a path from a state 'board' to 'goalState'
@@ -245,6 +233,7 @@ def GBFS(board, goalState):
     from the starting state to the goal state ( returns None if there is no such path )
     and an integer number of the number of states it evaluated until reaching that state
     """
+    goal = generateGoalState(len(board))
     totalChecks = 0
     # a dict containing a state as key and a (parentState ,move ) tuple as value
     reached = {}
@@ -257,7 +246,7 @@ def GBFS(board, goalState):
         _, currState, parent, parentMove = heapq.heappop(frontier)
         totalChecks += 1
 
-        if goalState == currState:
+        if goal == currState:
             path = reconstructPath(parent, parentMove, reached)
             return path, totalChecks
         # adding the current state to the reached dict
@@ -290,6 +279,7 @@ class Node:
      the node class wraps the state with its parent the move from the parent to the state the cost
      to get to the state and its priority
     """
+
     def __init__(self, state, parent, parentMove, cost, priority):
         self.state = state
         self.parent = parent
@@ -301,7 +291,7 @@ class Node:
         return self.priority < other.priority
 
 
-def AStar(board, goalState):
+def AStar(board):
     """
     tree implementation of A* (A Star) for the 3*3 sliding tile problem
     this function finds a path from a state 'board' to 'goalState'
@@ -310,14 +300,12 @@ def AStar(board, goalState):
 
     this function uses an admissible heuristic ( more detail in the documentation of the heuristic function )
 
-
     :param board: (list of lists) the current state of the 3*3 board
-    :param goalState: (list of lists) the state of the 3*3 board we want to get to
     :return: the path (list) which is a list of the tile values that we need to move in order to get
     from the starting state to the goal state ( returns None if there is no such path )
     and an integer number of the number of states it evaluated until reaching that state
     """
-
+    goal = generateGoalState(len(board))
     totalChecks = 0
     # frontier is a min heap that contains a Node object
     frontier = []
@@ -331,7 +319,7 @@ def AStar(board, goalState):
         currState = currStateNode.state
         totalChecks += 1
 
-        if goalState == currState:
+        if goal == currState:
             path = []
             # reconstruct path to starting node
             while currStateNode.parent is not None:
@@ -344,7 +332,6 @@ def AStar(board, goalState):
         childStates = findChildStates(currState)
         # add child states to the frontier heap
         for childState, childMove in childStates:
-
             # the cost of any move is the cost of its parent + 1
             childCost = currStateNode.cost + 1
             priority = heuristic(childState) + childCost
@@ -400,9 +387,6 @@ def reconstructPath(parent, parentMove, reached):
         parent, parentMove = reached.get(parent)
 
     return path
-
-
-
 
 
 def transpose(board):
@@ -480,8 +464,9 @@ def getUserBoard():
     return board
 
 
-if __name__ == "__main__":
+ALGO_MAP = {"BFS": BFS, "IDDFS": IDDFS, "GBFS": GBFS, "A*": AStar}
 
+if __name__ == "__main__":
     _userBoard = getUserBoard()
     _goalState = generateGoalState()
     # run search algorithms and print the results as instructed
