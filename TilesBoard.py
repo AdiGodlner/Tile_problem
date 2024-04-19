@@ -13,7 +13,7 @@ class TilesBoard(tk.Frame):
         self.parent = parent
         self.name = name
         self.check_solved = check_solved
-        self.board = []
+        self.board = np.array([])
         self.enabled = enabled
         self.zero_tile = None
         self.start_pos = 150
@@ -150,11 +150,14 @@ class TilesBoard(tk.Frame):
 
 
 def generate_num_board(board_size):
-    num_board = np.arange(board_size * board_size).reshape((board_size, board_size))
-
+    num_board = generate_goal_state(board_size)
     # make board random yet solvable by playing 100 random moves
     make_random_moves(num_board, board_size, 0, 0)
     return num_board
+
+
+def generate_goal_state(board_size):
+    return np.arange(board_size * board_size).reshape((board_size, board_size))
 
 
 def make_random_moves(board, board_size, zero_row, zero_col):

@@ -14,8 +14,10 @@ class GameTab(tk.Frame):
         self.get_options = get_options
         self.board_size = 0
         # game menu btns
-        self.restart_btn = tk.Button(self, text="restart ", command=self.restart_game)
-        self.restart_btn.pack()
+        self.reset_btn = tk.Button(self, text="reset ", command=self.reset_game)
+        self.reset_btn.pack()
+        self.start_btn = tk.Button(self, text="start ", command=self.start)
+        self.start_btn.pack()
         # user board
         tk.Label(self, text="User").pack()
         self.user_board = TilesBoard(self, "user", True, self.check_solved)
@@ -32,11 +34,10 @@ class GameTab(tk.Frame):
 
         if self.board_size != size:
             self.board_size = size
-            self.restart_game()
+            self.reset_game()
 
-    def restart_game(self):
+    def reset_game(self):
 
-        self.playing = True
         # remove old boards from GUI
         self.user_board.clear_board()
         self.computer_board.clear_board()
@@ -44,6 +45,9 @@ class GameTab(tk.Frame):
         self.user_board.create_board(self.board_size)
         self.computer_board.copy_board(self.user_board)
         self.computer_board.place_board()
+
+    def start(self):
+        self.playing = True
         # let the computer play the game on a different thread to not interrupt the user
         threading.Thread(target=self.computer_play, daemon=True).start()
 
@@ -62,7 +66,7 @@ class GameTab(tk.Frame):
         self.stop_game(self.computer_board)
 
     def stop_game(self, winning_board):
-
+        print(f"board : {winning_board.name} stopped the game ")
         if self.playing:
             self.playing = False
             self.user_board.disable()

@@ -22,11 +22,7 @@ import sys
 import heapq
 from queue import Queue
 import TilesBoard
-
-
-def generateGoalState(size):
-    board = [[j + i * size for j in range(size)] for i in range(3)]
-    return board
+import numpy as np
 
 
 def findChildStates(currState):
@@ -40,14 +36,15 @@ def findChildStates(currState):
      child move is the value of the tile that was moved e.g. 8
     """
     childStates = []
+    board_size = currState.shape[0]
     # find the coordinates of the zero tile
     zeroRow, zeroCol = findZero(currState)
-    possibleMoves = TilesBoard.findPossibleMoves(zeroRow, zeroCol)
+    possibleMoves = TilesBoard.findPossibleMoves(board_size, zeroRow, zeroCol)
 
     # generate child states by making moves
     for move in possibleMoves:
         # create a deep copy of the current state to avoid modifying the original state
-        childState = deepCopy(currState)
+        childState = np.copy(currState)
         # make the move and get the value of the moved tile
         movedTileValue = makeMove(childState, move, zeroRow, zeroCol)
         childStates.append((childState, movedTileValue))
@@ -68,22 +65,13 @@ def makeMove(board, move, zeroRow, zeroCol):
 
     """
 
-    board[zeroRow][zeroCol] = board[move[0]][move[1]]
-    board[move[0]][move[1]] = 0
-    return board[zeroRow][zeroCol]
+    board[zeroRow, zeroCol] = board[move[0], move[1]]
+    board[move[0], move[1]] = 0
+    return board[zeroRow, zeroCol]
 
 
 def findZero(board):
-    """
-    finds the coordinates of the tile with value 0
-    :param board: (list of lists) the current state of the 3*3 board
-    :return: tuple (row , column )  coordinates of the tile with value 0
-    """
-    for i in range(len(board)):
-        for j in range(len(board)):  # we assume the matrix is square
-
-            if board[i][j] == 0:
-                return i, j
+    return np.argwhere(board == 0)[0]
 
 
 def BFS(board):
@@ -98,7 +86,7 @@ def BFS(board):
     from the starting state to the goal state ( returns None if there is no such path )
     and an integer number of the number of states it evaluated until reaching that state
     """
-    goal = generateGoalState(len(board))
+    goal = TilesBoard.generate_goal_state(len(board))
     totalChecks = 0
     # a dict containing a state as key and a (parentState ,move ) tuple as value
     reached = {}
@@ -113,7 +101,7 @@ def BFS(board):
         currState, parent, parentMove = frontier.get()
         totalChecks += 1
 
-        if goal == currState:
+        if np.array_equal(goal, currState):
             path = reconstructPath(parent, parentMove, reached)
             return path, totalChecks
 
@@ -149,7 +137,7 @@ def IDDFS(board):
     # even thou reached states are already saved to path this does not
     # increase the asymptotic memory consumption
     # because depthLimitedSearch makes sure that 'path' and 'reached' have the same elements
-    goal = generateGoalState(len(board))
+    goal = TilesBoard.generate_goal_state(len(board))
     reached = set()
     path = []
     depth = 0
@@ -228,12 +216,11 @@ def GBFS(board):
    this function uses an admissible heuristic ( more detail in the documentation of the heuristic function )
 
     :param board: (list of lists) the current state of the 3*3 board
-    :param goalState: (list of lists) the state of the 3*3 board we want to get to
     :return: the path (list) which is a list of the tile values that we need to move in order to get
     from the starting state to the goal state ( returns None if there is no such path )
     and an integer number of the number of states it evaluated until reaching that state
     """
-    goal = generateGoalState(len(board))
+    goal = TilesBoard.generate_goal_state(len(board))
     totalChecks = 0
     # a dict containing a state as key and a (parentState ,move ) tuple as value
     reached = {}
@@ -305,7 +292,7 @@ def AStar(board):
     from the starting state to the goal state ( returns None if there is no such path )
     and an integer number of the number of states it evaluated until reaching that state
     """
-    goal = generateGoalState(len(board))
+    goal = TilesBoard.generate_goal_state(len(board))
     totalChecks = 0
     # frontier is a min heap that contains a Node object
     frontier = []
@@ -412,7 +399,7 @@ def stateToTuple(state):
     :param state:(list of lists) the 2D board state to be converted
     :return: a hashable tuple representing the board state
     """
-    return tuple(tuple(row) for row in state)
+    return tuple(map(tuple, state))
 
 
 def searchAndPrintResult(board, goalState, funcName, searchFunc):
@@ -468,7 +455,7 @@ ALGO_MAP = {"BFS": BFS, "IDDFS": IDDFS, "GBFS": GBFS, "A*": AStar}
 
 if __name__ == "__main__":
     _userBoard = getUserBoard()
-    _goalState = generateGoalState()
+    _goalState = TilesBoard.generate_goal_state(len(_userBoard))
     # run search algorithms and print the results as instructed
     searchAndPrintResult(_userBoard, _goalState, "BFS", BFS)
     searchAndPrintResult(_userBoard, _goalState, "IDDFS", IDDFS)
