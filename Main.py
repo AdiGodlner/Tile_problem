@@ -1,9 +1,9 @@
-from Window import Window
+from ThreadedClient import ThreadedClient
 
 
 def main():
-    window = Window(title="Tile game solver")
-    window.mainloop()
+    client = ThreadedClient(title="Tile game solver")
+    client.mainloop()
 
 
 if __name__ == "__main__":

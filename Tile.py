@@ -8,6 +8,7 @@ class Tile(tk.Button):
                          command=self.on_click)
         self.parent = parent
         self.number = number
+        self.canvas_id = None
         self.row = row
         self.col = col
         self.game_move = game_move

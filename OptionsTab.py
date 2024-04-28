@@ -1,5 +1,6 @@
 import tkinter as tk
 from Tiles import ALGO_MAP
+from AbstractTab import Tab
 
 
 def get_algo_options():
@@ -27,7 +28,7 @@ def get_themes():
             "vapor"]
 
 
-class OptionsTab(tk.Frame):
+class OptionsTab(Tab):
 
     def __init__(self, parent, theme, set_theme):
         super().__init__(parent)
