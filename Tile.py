@@ -24,6 +24,7 @@ class Tile:
         self.canvas_id = self.canvas.create_rectangle(x1, y1, x2, y2, fill="lightgray")
         self.text_id = self.canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=self.number)
         self.canvas.tag_bind(self.canvas_id, LEFT_CLICK, self.on_click)
+        self.canvas.tag_bind(self.text_id, LEFT_CLICK, self.on_click)
 
     def move(self, move_x, move_y):
         self.canvas.move(self.canvas_id, move_x, move_y)
