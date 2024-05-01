@@ -14,7 +14,7 @@ The initial state configuration is given by the user as a list of integers as cm
  as shown in the following example
 
 Example:
-python3 Tiles.py 0 6 4 7 3 5 1 2 8
+python3 TilesSolver.py 0 6 4 7 3 5 1 2 8
 
 """
 import argparse

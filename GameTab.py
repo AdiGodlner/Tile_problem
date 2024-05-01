@@ -1,6 +1,6 @@
 import tkinter as tk
 from TilesBoard import TilesBoard
-from Tiles import ALGO_MAP
+from TilesSolver import ALGO_MAP
 import numpy as np
 from AbstractTab import Tab
 
@@ -91,8 +91,7 @@ class GameTab(Tab):
         board_size = len(board)
         for i, row in enumerate(board):
             for j, tile in enumerate(row):
-                number = tile["text"]
-                if int(number) != (i * board_size) + j:
+                if int(tile.number) != (i * board_size) + j:
                     return False
 
         self.stop_game(tiles_board)

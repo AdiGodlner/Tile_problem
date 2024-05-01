@@ -20,8 +20,8 @@ class TestTab(tk.Frame):
         # self.create_widgets()
 
     def update_frame_width(self, event):
-        print(f"update_frame_width | {event.width}")
-        self.myFrame.configure(width=event.width)
+        print(f"update_frame_width | {event.size}")
+        self.myFrame.configure(width=event.size)
 
     def create_widgets(self):
         self.btn1 = tk.Button(self, text="my btn", command=self.move_btn)

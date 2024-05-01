@@ -17,11 +17,9 @@ class TilesBoard(tk.Canvas):
         self.board = np.array([])
         self.enabled = enabled
         self.zero_tile = None
-        self.start_pos = 150
         self.btn_size = 40
-        self.gap = 20
         self.default_total_frames = 10
-        self.distance_per_frame = (self.btn_size + self.gap) / self.default_total_frames
+        self.distance_per_frame = self.btn_size / self.default_total_frames
 
     def copy_board(self, original_tiles_board):
 
@@ -36,7 +34,6 @@ class TilesBoard(tk.Canvas):
         self.board_id = original_tiles_board.board_id
 
     def enable(self):
-        # TODO vecotirze ?
         for row in self.board:
             for tile in row:
                 tile.enable()
@@ -45,11 +42,6 @@ class TilesBoard(tk.Canvas):
         for row in self.board:
             for tile in row:
                 tile.disable()
-
-    def calc_position(self, row, col):
-        x = self.start_pos + (col * (self.btn_size + self.gap))
-        y = self.start_pos + (row * (self.btn_size + self.gap))
-        return x, y
 
     def create_board(self, board_size):
 
@@ -66,9 +58,9 @@ class TilesBoard(tk.Canvas):
 
             for col, num in enumerate(row):
 
-                tileBtn = Tile(self, num, row_index, col, self.enabled, self.game_move)
+                tileBtn = Tile(self, self.btn_size, num, row_index, col, self.enabled, self.game_move)
                 tiles_board[row_index, col] = tileBtn
-                # skip placing 0 tile
+
                 if num == 0:
                     self.zero_tile = tileBtn
 
@@ -89,32 +81,31 @@ class TilesBoard(tk.Canvas):
         return num_board
 
     def place_board(self):
-        for row in self.board:
 
+        for row in self.board:
             for tile in row:
-                num = tile.number
-                if num != 0:
-                    x, y = self.calc_position(tile.row, tile.col)
-                    tile.canvas_id = self.create_window(x, y, window=tile, anchor="nw")
-                    # tile.place(x=x, y=y)
+
+                if tile.number != 0:
+                    x1 = tile.col * tile.size
+                    y1 = tile.row * tile.size
+                    x2 = x1 + tile.size
+                    y2 = y1 + tile.size
+                    tile.draw(x1, x2, y1, y2)
 
     def game_move(self, tile):
-
         row = tile.row
         col = tile.col
         zero_row = self.zero_tile.row
         zero_col = self.zero_tile.col
+        row_diff = zero_row - row
+        col_diff = zero_col - col
+        if abs(row_diff) + abs(col_diff) == 1:
+            # TODO fix this to work with drawing on canvas
+            # TODO does this need the copy sign ?
+            x_direction = copysign(1, col_diff) if col_diff != 0 else 0
+            y_direction = copysign(1, row_diff) if row_diff != 0 else 0
 
-        if abs(row - zero_row) + abs(col - zero_col) == 1:
-            # TODO better comments
-            curr_tile_x, curr_tile_y = self.calc_position(row, col)
-            zero_tile_x, zero_tile_y = self.calc_position(zero_row, zero_col)
-            x_direction = zero_tile_x - curr_tile_x
-            x_direction = copysign(1, x_direction) if x_direction != 0 else 0
-            y_direction = zero_tile_y - curr_tile_y
-            y_direction = copysign(1, y_direction) if y_direction != 0 else 0
-
-            self.animate_move(tile.canvas_id, x_direction, y_direction, self.default_total_frames)
+            self.animate_move(tile, x_direction, y_direction, self.default_total_frames)
 
             # update tile position
             tile.row = zero_row
@@ -130,15 +121,14 @@ class TilesBoard(tk.Canvas):
             # After moving the tile, check if the puzzle is solved
             self.check_solved(self)
 
-    def animate_move(self, tile_canvas_id, x_direction, y_direction, total_frames):
+    def animate_move(self, tile, x_direction, y_direction, total_frames):
         if total_frames > 0:
             move_x = (self.distance_per_frame * x_direction)
             move_y = (self.distance_per_frame * y_direction)
 
-            self.move(tile_canvas_id, move_x, move_y)
-            self.update()
+            tile.move(move_x, move_y)
             self.after(10,
-                       lambda TILE=tile_canvas_id, X_DIRECTION=x_direction, Y_DIRECTION=y_direction
+                       lambda TILE=tile, X_DIRECTION=x_direction, Y_DIRECTION=y_direction
                               , TOTAL_FRAMES=total_frames - 1
                        : self.animate_move(TILE, X_DIRECTION, Y_DIRECTION, TOTAL_FRAMES))
 
@@ -146,7 +136,7 @@ class TilesBoard(tk.Canvas):
 
         for row in self.board:
             for tile in row:
-                tile.destroy()
+                tile.clear()
 
         self.board = None
 

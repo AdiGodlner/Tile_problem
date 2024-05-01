@@ -1,5 +1,5 @@
 import tkinter as tk
-from Tiles import ALGO_MAP
+from TilesSolver import ALGO_MAP
 from AbstractTab import Tab
 
 
