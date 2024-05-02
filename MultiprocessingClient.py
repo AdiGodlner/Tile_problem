@@ -1,5 +1,4 @@
 from Window import Window
-from DaemonThreadPoolExecutor import DaemonThreadPoolExecutor
 import queue
 import sys
 import threading
@@ -42,14 +41,14 @@ class ThreadedClient(object):
         while self.running:
             try:
                 task = self.gui_to_solver_queue.get(timeout=1)
-                print(f"got task from GUI {task} | in thread {threading.current_thread().ident}")
+                print(f"got task from GUI | in thread {threading.current_thread().ident}")
                 # simulate complex calculation
                 # TODO solve tiles
                 foo()
                 # print(f"thread {threading.current_thread().ident} going to sleep ")
                 # time.sleep(4)
                 # print(f"thread {threading.current_thread().ident} wake up  ")
-                print("finished solving telling GUI")
+                print(f"finished solving telling GUI | in thread {threading.current_thread().ident} ")
                 self.solver_to_gui_queue.put(f"result for task {task} ")
             except queue.Empty:
                 pass
