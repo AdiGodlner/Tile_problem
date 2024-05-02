@@ -36,7 +36,7 @@ class OptionsTab(Tab):
         self.selected_algorithm = tk.StringVar(value="BFS")
         self.theme_var = tk.StringVar(value=theme)
         self.size_var = tk.IntVar(value=3)
-        self.options = {"algorithm": self.selected_algorithm,
+        self.options = {"algo": self.selected_algorithm,
                         "theme": self.theme_var,
                         "size": self.size_var}
         self.set_theme = set_theme

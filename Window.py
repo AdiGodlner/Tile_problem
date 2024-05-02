@@ -2,10 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 from GameTab import GameTab
 from OptionsTab import OptionsTab
-import threading
+import queue
+
 
 class Window(tk.Tk):
-    def __init__(self,gui_to_solver_queue, solver_to_gui_queue, *args, **kwargs):
+    def __init__(self, gui_to_solver_queue, solver_to_gui_queue, *args, **kwargs):
         super().__init__()
         self.solver_to_gui_queue = solver_to_gui_queue
         self.gui_to_solver_queue = gui_to_solver_queue
@@ -17,6 +18,8 @@ class Window(tk.Tk):
         self.geometry(f"{screen_width}x{screen_height}")
         # Create notebook widget to hold tabs
         self.notebook = ttk.Notebook(self)
+        self.game_tab = None
+        self.options_tab = None
         self.createLayout()
 
     def createLayout(self):
@@ -29,17 +32,14 @@ class Window(tk.Tk):
         header_label.pack(pady=20)
 
         # Create tabs
-        options_frame = OptionsTab(self.notebook, self.theme_name, self.set_theme)
-        game_frame = GameTab(self.notebook, options_frame.get_option, self.gui_to_solver_queue)
-        # testFrame = TestTab(self.notebook)
+        self.options_tab = OptionsTab(self.notebook, self.theme_name, self.set_theme)
+        self.game_tab = GameTab(self.notebook, self.options_tab.get_option, self.gui_to_solver_queue)
 
-        options_frame.pack(fill="both", expand=1)
-        game_frame.pack(fill="both", expand=1)
-        # testFrame.pack(fill="both", expand=1)
+        self.options_tab.pack(fill="both", expand=1)
+        self.game_tab.pack(fill="both", expand=1)
         # Add tabs to notebook
-        self.notebook.add(options_frame, text="Options")
-        self.notebook.add(game_frame, text="Game")
-        # self.notebook.add(testFrame, text="test")
+        self.notebook.add(self.options_tab, text="Options")
+        self.notebook.add(self.game_tab, text="Game")
 
         # Bind Tab changing event
         self.notebook.bind("<<NotebookTabChanged>>", on_tab_changed)
@@ -51,17 +51,17 @@ class Window(tk.Tk):
         # self.style.theme_use(theme)
 
     def processIncoming(self):
-        """ Handle all messages currently in the queue, if any. """
+        """ Handle all messages currently in the queue, if any.
+        this is here instead of games tab in case we would want to add
+        different messages from process that are handled by different parts of the GUI
+        """
         while self.solver_to_gui_queue.qsize():
             try:
-                print(f"in processIncoming thread {threading.current_thread().ident}")
 
                 msg = self.solver_to_gui_queue.get_nowait()
-                print(f"msg from solver : {msg}")
-                # TODO process results from calculating threads
-            except self.solver_to_gui_queue.Empty:
+                self.game_tab.processIncoming(msg)
+            except queue.Empty:
                 # just in case
-                # TODO check if this is nessacery
                 pass
 
 

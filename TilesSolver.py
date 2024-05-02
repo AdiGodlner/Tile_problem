@@ -20,10 +20,11 @@ python3 TilesSolver.py 0 6 4 7 3 5 1 2 8
 import argparse
 import sys
 import heapq
-from queue import Queue
 import TilesBoard
 import numpy as np
-
+import queue
+from TilesSolverMsgs import TilesSolverTask, TilesSolverSolution
+import os
 
 def findChildStates(currState):
     """
@@ -92,7 +93,7 @@ def BFS(board):
     reached = {}
     # the queue contains tuples of states their parent and the tile that moved from parent
     # to the current state
-    frontier = Queue()
+    frontier = queue.Queue()
     # set initial frontier to the starting board state with None parent and None move
     frontier.put((board, None, None))
 
@@ -452,6 +453,20 @@ def getUserBoard():
 
 
 ALGO_MAP = {"BFS": BFS, "IDDFS": IDDFS, "GBFS": GBFS, "A*": AStar}
+
+
+def solve_tiles(gui_to_solver_queue, solver_to_gui_queue):
+    #  consumer for tile boards to solve
+    while True:
+        try:
+            task = gui_to_solver_queue.get(timeout=1)
+            print(f" in solve_tiles PID {os.getpid()}")
+            algo = ALGO_MAP.get(task.algo_name)
+            solution, _ = algo(task.tiles_board)
+            solver_to_gui_queue.put(TilesSolverSolution(solution, task.board_id))
+        except queue.Empty:
+            pass
+
 
 if __name__ == "__main__":
     _userBoard = getUserBoard()

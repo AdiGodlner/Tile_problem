@@ -1,10 +1,8 @@
 import tkinter as tk
 from TilesBoard import TilesBoard
-from TilesSolver import ALGO_MAP
-import numpy as np
 from AbstractTab import Tab
-import threading
-
+from TilesSolverMsgs import TilesSolverTask, TilesSolverSolution
+import os
 
 class GameTab(Tab):
 
@@ -37,6 +35,16 @@ class GameTab(Tab):
             self.board_size = size
             self.reset_game()
 
+    def processIncoming(self, solution_msg):
+
+        if self.user_board.board_id == solution_msg.board_id:
+            print(f" in processIncoming PID {os.getpid()}")
+            num_to_tiles = self.computer_board.num_to_tiles_mapping()
+
+            for num in solution_msg.solution:
+                self.computer_board.game_move(num_to_tiles[num])
+                # TODO computer move do not stop game
+
     def reset_game(self):
 
         # remove old boards from GUI
@@ -52,25 +60,16 @@ class GameTab(Tab):
         # enable user to start palying
         self.user_board.enable()
         # let the computer play the game on a different thread to not interrupt the user
+        # TODO maybe start computer playing from when the user
+        # clicks its first btn and that's when we set playing to true ?
         self.computer_play()
 
     def computer_play(self):
-        # TODO maybe start computer palying from when the user
-        # clicks its first btn and thats when we set playing to true ?
-        # print(f" in  thread {threading.current_thread()}")
-        num_board = self.computer_board.get_num_board()
-        # algo_name = self.get_options("algorithm")
-        # print(algo_name)
-        # algo = ALGO_MAP.get(algo_name)
-        # solution = algo(num_board)
-        print(f"putting board to queue in GUI thread {threading.current_thread()} \n=========== ")
-        self.gui_to_solver_queue.put(num_board)
-        print(f" board in queue  in GUI thread {threading.current_thread()} \n=========== ")
-        # solution = []
-        # for num in solution:
-        #     pass
-        # TODO computer move do not stop game
-        # play moves should stop game for you
+        task = TilesSolverTask(self.get_options("algo"),
+                               self.computer_board.get_num_board(),
+                               self.computer_board.board_id)
+
+        self.gui_to_solver_queue.put(task)
 
     def stop_game(self, winning_board):
         print(f"board : {winning_board.name} stopped the game ")

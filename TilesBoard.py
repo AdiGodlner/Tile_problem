@@ -29,6 +29,8 @@ class TilesBoard(tk.Canvas):
         for i, row in enumerate(original_board):
             for j, tile in enumerate(row):
                 new_board[i, j] = tile.copy(self, self.enabled)
+                if tile.number == 0:
+                    self.zero_tile = new_board[i, j]
 
         self.board = new_board
         self.board_id = original_tiles_board.board_id
@@ -97,7 +99,6 @@ class TilesBoard(tk.Canvas):
         row_diff = zero_row - row
         col_diff = zero_col - col
         if abs(row_diff) + abs(col_diff) == 1:
-            # TODO fix this to work with drawing on canvas
             # TODO does this need the copy sign ?
             x_direction = copysign(1, col_diff) if col_diff != 0 else 0
             y_direction = copysign(1, row_diff) if row_diff != 0 else 0
@@ -125,9 +126,17 @@ class TilesBoard(tk.Canvas):
 
             tile.move(move_x, move_y)
             self.after(10,
-                       lambda TILE=tile, X_DIRECTION=x_direction, Y_DIRECTION=y_direction
-                              , TOTAL_FRAMES=total_frames - 1
+                       lambda TILE=tile, X_DIRECTION=x_direction, Y_DIRECTION=y_direction, TOTAL_FRAMES=total_frames - 1
                        : self.animate_move(TILE, X_DIRECTION, Y_DIRECTION, TOTAL_FRAMES))
+
+    def num_to_tiles_mapping(self):
+
+        num_to_tiles = np.empty(self.board.size, dtype=object)
+        for row in self.board:
+            for tile in row:
+                num_to_tiles[tile.number] = tile
+
+        return num_to_tiles
 
     def clear_board(self):
 
