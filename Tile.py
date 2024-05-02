@@ -51,4 +51,5 @@ class Tile:
         # self.configure(state="normal")
 
     def on_click(self, event):
+        # if self.enabled:
         self.game_move(self)

@@ -68,15 +68,12 @@ class TilesBoard(tk.Canvas):
 
     def get_num_board(self):
 
-        board_size = len(self.board)
         num_board = np.empty_like(self.board)
-        bored_tiles = np.zeros(board_size * board_size)
 
         for i, row in enumerate(self.board):
 
             for j, tile in enumerate(row):
                 num_board[i, j] = tile.number
-                bored_tiles[tile.number] = tile.number
 
         return num_board
 

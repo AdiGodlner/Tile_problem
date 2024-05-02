@@ -1,8 +1,8 @@
-from ThreadedClient import ThreadedClient
+from MultiprocessingClient import MultiprocessingClient
 
 
 def main():
-    client = ThreadedClient(title="Tile game solver")
+    client = MultiprocessingClient(title="Tile game solver")
     client.mainloop()
 
 

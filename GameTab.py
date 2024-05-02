@@ -3,6 +3,7 @@ from TilesBoard import TilesBoard
 from TilesSolver import ALGO_MAP
 import numpy as np
 from AbstractTab import Tab
+import threading
 
 
 class GameTab(Tab):
@@ -39,8 +40,8 @@ class GameTab(Tab):
     def reset_game(self):
 
         # remove old boards from GUI
-        self.user_board.clear_board()
         self.computer_board.clear_board()
+        self.user_board.clear_board()
         # create and place new Boards
         self.user_board.create_board(self.board_size)
         self.computer_board.copy_board(self.user_board)
@@ -51,11 +52,7 @@ class GameTab(Tab):
         # enable user to start palying
         self.user_board.enable()
         # let the computer play the game on a different thread to not interrupt the user
-        # print(f" in  thread {threading.current_thread()}")
-        print("===================")
         self.computer_play()
-        print("after thread in start ")
-        # threading.Thread(target=self.computer_play, daemon=True).start()
 
     def computer_play(self):
         # TODO maybe start computer palying from when the user
@@ -66,12 +63,14 @@ class GameTab(Tab):
         # print(algo_name)
         # algo = ALGO_MAP.get(algo_name)
         # solution = algo(num_board)
+        print(f"putting board to queue in GUI thread {threading.current_thread()} \n=========== ")
         self.gui_to_solver_queue.put(num_board)
+        print(f" board in queue  in GUI thread {threading.current_thread()} \n=========== ")
         # solution = []
         # for num in solution:
         #     pass
-            # TODO computer move do not stop game
-            # play moves should stop game for you
+        # TODO computer move do not stop game
+        # play moves should stop game for you
 
     def stop_game(self, winning_board):
         print(f"board : {winning_board.name} stopped the game ")
@@ -97,4 +96,3 @@ class GameTab(Tab):
         self.stop_game(tiles_board)
         # tiles_board.disable()
         return True
-
