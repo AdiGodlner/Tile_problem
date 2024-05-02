@@ -24,7 +24,7 @@ import TilesBoard
 import numpy as np
 import queue
 from TilesSolverMsgs import TilesSolverTask, TilesSolverSolution
-import os
+
 
 def findChildStates(currState):
     """
@@ -460,7 +460,6 @@ def solve_tiles(gui_to_solver_queue, solver_to_gui_queue):
     while True:
         try:
             task = gui_to_solver_queue.get(timeout=1)
-            print(f" in solve_tiles PID {os.getpid()}")
             algo = ALGO_MAP.get(task.algo_name)
             solution, _ = algo(task.tiles_board)
             solver_to_gui_queue.put(TilesSolverSolution(solution, task.board_id))

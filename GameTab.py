@@ -2,7 +2,6 @@ import tkinter as tk
 from TilesBoard import TilesBoard
 from AbstractTab import Tab
 from TilesSolverMsgs import TilesSolverTask, TilesSolverSolution
-import os
 
 class GameTab(Tab):
 
@@ -38,7 +37,6 @@ class GameTab(Tab):
     def processIncoming(self, solution_msg):
 
         if self.user_board.board_id == solution_msg.board_id:
-            print(f" in processIncoming PID {os.getpid()}")
             num_to_tiles = self.computer_board.num_to_tiles_mapping()
 
             for num in solution_msg.solution:
