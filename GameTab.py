@@ -3,6 +3,7 @@ from TilesBoard import TilesBoard
 from AbstractTab import Tab
 from TilesSolverMsgs import TilesSolverTask, TilesSolverSolution
 
+
 class GameTab(Tab):
 
     def __init__(self, parent, get_options, gui_to_solver_queue):
@@ -39,9 +40,10 @@ class GameTab(Tab):
         if self.user_board.board_id == solution_msg.board_id:
             num_to_tiles = self.computer_board.num_to_tiles_mapping()
 
-            for num in solution_msg.solution:
-                self.computer_board.game_move(num_to_tiles[num])
-                # TODO computer move do not stop game
+            for i, num in enumerate(solution_msg.solution):
+                # insert events to main event loop to move the tiles so that it wont look like
+                # the computer is cheating
+                self.after(i * 100, lambda tile=num_to_tiles[num]: self.computer_board.game_move(tile))
 
     def reset_game(self):
 
