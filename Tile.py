@@ -15,10 +15,6 @@ class Tile:
 
         self.game_move = game_move
         self.enabled = enabled
-        if not enabled:
-            pass
-            # TODO draw as disabled ?
-            # self.disable()
 
     def draw(self, x1, x2, y1, y2):
         self.canvas_id = self.canvas.create_rectangle(x1, y1, x2, y2, fill="lightgray")
@@ -41,15 +37,13 @@ class Tile:
         return new_tile
 
     def disable(self):
-        pass
-        #  TODO disable
-        # self.configure(state="disabled")
+        self.enabled = False
+        self.canvas.itemconfig(self.canvas_id, fill="lightgray")
 
     def enable(self):
-        pass
-        #  TODO enable
-        # self.configure(state="normal")
+        self.enabled = True
+        self.canvas.itemconfig(self.canvas_id, fill="#3da9f9")
 
     def on_click(self, event):
-        # if self.enabled:
-        self.game_move(self)
+        if self.enabled:
+            self.game_move(self)
