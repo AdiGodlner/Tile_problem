@@ -157,12 +157,12 @@ def IDDFS(board):
     return None, totalChecks
 
 
-def depthLimitedSearch(currState, goalState, path, reached, maxDepth):
+def depthLimitedSearch(currState, goal, path, reached, maxDepth):
     """
     performs a depth limited search to find a path from the current state to the goal state
 
     :param currState: (list of lists) the current state of the 3*3 board
-    :param goalState: (list of lists) the state of the 3*3 board we want to get to
+    :param goal: (list of lists) the state of the 3*3 board we want to get to
     :param path: (list) a list to insert the move order to once a path is found
     :param reached: (set) a set of states that have been visited to prevent looping
      over states that have already been explored on the way to the current state
@@ -174,7 +174,7 @@ def depthLimitedSearch(currState, goalState, path, reached, maxDepth):
 
     totalChecks = 1
     # check if the current state is the goal state
-    if currState == goalState:
+    if np.array_equal(goal, currState):
         return True, totalChecks
     # check if the maximum depth has been reached
     if maxDepth == 0:
@@ -192,7 +192,7 @@ def depthLimitedSearch(currState, goalState, path, reached, maxDepth):
         # check if the child state has not been visited
         if childStateTuple not in reached:
             # recursively perform depth-limited search on the child state
-            foundSolution, checks = depthLimitedSearch(childState, goalState, path, reached, maxDepth - 1)
+            foundSolution, checks = depthLimitedSearch(childState, goal, path, reached, maxDepth - 1)
             totalChecks += checks
 
             # if a solution is found, update the path and return
@@ -234,7 +234,7 @@ def GBFS(board):
         _, currState, parent, parentMove = heapq.heappop(frontier)
         totalChecks += 1
 
-        if goal == currState:
+        if np.array_equal(goal, currState):
             path = reconstructPath(parent, parentMove, reached)
             return path, totalChecks
         # adding the current state to the reached dict
@@ -307,7 +307,7 @@ def AStar(board):
         currState = currStateNode.state
         totalChecks += 1
 
-        if goal == currState:
+        if np.array_equal(goal, currState):
             path = []
             # reconstruct path to starting node
             while currStateNode.parent is not None:
