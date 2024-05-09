@@ -99,11 +99,8 @@ class TilesBoard(tk.Canvas):
         row_diff = zero_row - row
         col_diff = zero_col - col
         if abs(row_diff) + abs(col_diff) == 1:
-            # TODO does this need the copy sign ?
-            x_direction = copysign(1, col_diff) if col_diff != 0 else 0
-            y_direction = copysign(1, row_diff) if row_diff != 0 else 0
 
-            self.animate_move(tile, x_direction, y_direction, self.default_total_frames)
+            self.animate_move(tile, col_diff, row_diff, self.default_total_frames)
 
             # update tile position
             tile.row = zero_row

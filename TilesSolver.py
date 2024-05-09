@@ -75,7 +75,7 @@ def findZero(board):
     return np.argwhere(board == 0)[0]
 
 
-def BFS(board):
+def BFS(board, interrupt_event):
     """
     a graph search implementation of BFS (Breadth-First Search) for the 3*3 sliding tile problem
     this function finds an optimal path from a state 'board' to 'goalState'
@@ -97,7 +97,7 @@ def BFS(board):
     # set initial frontier to the starting board state with None parent and None move
     frontier.put((board, None, None))
 
-    while not (frontier.empty()):
+    while (not frontier.empty()) and (not interrupt_event.is_set()):
 
         currState, parent, parentMove = frontier.get()
         totalChecks += 1
@@ -122,7 +122,7 @@ def BFS(board):
     return None, totalChecks
 
 
-def IDDFS(board):
+def IDDFS(board, interrupt_event):
     """
     implementation of IDDFS (Iterative Deepening Depth-First Search) for the 3*3 sliding tile problem
     this function finds an optimal path from a state 'board' to 'goalState'
@@ -144,7 +144,7 @@ def IDDFS(board):
     depth = 0
     totalChecks = 0
     # IDDFS needs to stop somewhere if there is no solution so 30 seams as good as any
-    while depth < 30:
+    while depth < 30 and (not interrupt_event.is_set()):
 
         foundSolution, currChecks = depthLimitedSearch(board, goal, path, reached, depth)
         depth += 1
@@ -207,7 +207,7 @@ def depthLimitedSearch(currState, goal, path, reached, maxDepth):
     return False, totalChecks
 
 
-def GBFS(board):
+def GBFS(board, interrupt_event):
     """
     implementation of GBFS (Greedy Best-First Search) for the 3*3 sliding tile problem
     this function finds a path from a state 'board' to 'goalState'
@@ -229,7 +229,7 @@ def GBFS(board):
     # heapq sorts elements in the min heap based on the first value of the tuple
     heapq.heappush(frontier, (heuristic(board), board, None, None))
 
-    while len(frontier) > 0:
+    while (len(frontier) > 0) and (not interrupt_event.is_set()):
 
         _, currState, parent, parentMove = heapq.heappop(frontier)
         totalChecks += 1
@@ -279,7 +279,7 @@ class Node:
         return self.priority < other.priority
 
 
-def AStar(board):
+def AStar(board, interrupt_event):
     """
     tree implementation of A* (A Star) for the 3*3 sliding tile problem
     this function finds a path from a state 'board' to 'goalState'
@@ -301,7 +301,7 @@ def AStar(board):
     boardNode = Node(board, None, None, 0, heuristic(board))
     heapq.heappush(frontier, boardNode)
     # because this is a tree search I added a last minute stopping condition in case there isn't a solution
-    while len(frontier) > 0 and totalChecks < 3000000:
+    while (len(frontier) > 0) and (not interrupt_event.is_set()):
 
         currStateNode = heapq.heappop(frontier)
         currState = currStateNode.state
@@ -455,16 +455,35 @@ def getUserBoard():
 ALGO_MAP = {"BFS": BFS, "IDDFS": IDDFS, "GBFS": GBFS, "A*": AStar}
 
 
-def solve_tiles(gui_to_solver_queue, solver_to_gui_queue):
-    #  consumer for tile boards to solve
-    while True:
-        try:
-            task = gui_to_solver_queue.get(timeout=1)
-            algo = ALGO_MAP.get(task.algo_name)
-            solution, _ = algo(task.tiles_board)
-            solver_to_gui_queue.put(TilesSolverSolution(solution, task.board_id))
-        except queue.Empty:
-            pass
+class TilesSolver:
+
+    def __init__(self, interrupt_event, gui_to_solver_queue, solver_to_gui_queue):
+        self.interrupt_event = interrupt_event
+        self.gui_to_solver_queue = gui_to_solver_queue
+        self.solver_to_gui_queue = solver_to_gui_queue
+
+    def solve_tiles(self):
+        #  consumer for tile boards to solve
+        while True:
+            try:
+                task = self.gui_to_solver_queue.get(timeout=1)
+                if self.interrupt_event.is_set():
+                    # the event is to be set to interrupt a running calculation
+                    # and not to prevent from a calculation to start running
+                    self.interrupt_event.clear()
+
+                print(f"got task from GUI {task}")
+                algo = ALGO_MAP.get(task.algo_name)
+                solution, _ = algo(task.tiles_board, self.interrupt_event)
+                if self.interrupt_event.is_set():
+                    # allow GUI to interrupt process again
+                    print(f"process interrupted {self.interrupt_event.is_set()}")
+                    self.interrupt_event.clear()
+                else:
+                    self.solver_to_gui_queue.put(TilesSolverSolution(solution, task.board_id))
+
+            except queue.Empty:
+                pass
 
 
 if __name__ == "__main__":

@@ -1,30 +1,36 @@
 import tkinter as tk
 from TilesBoard import TilesBoard
 from AbstractTab import Tab
-from TilesSolverMsgs import TilesSolverTask, TilesSolverSolution
+from TilesSolverMsgs import TilesSolverTask
+import queue
 
 
 class GameTab(Tab):
 
-    def __init__(self, parent, get_options, gui_to_solver_queue):
+    def __init__(self, parent, get_options, gui_to_solver_queue, tiles_solver_interrupt_event):
         super().__init__(parent)
         self.playing = False
         self.gui_to_solver_queue = gui_to_solver_queue
         self.get_options = get_options
         self.board_size = 0
-        # game menu btns
+        self.tiles_solver_interrupt_event = tiles_solver_interrupt_event
         self.reset_btn = tk.Button(self, text="reset ", command=self.reset_game)
-        self.reset_btn.pack()
         self.start_btn = tk.Button(self, text="start ", command=self.start)
-        self.start_btn.pack()
-        # user board
-        tk.Label(self, text="User").pack()
+
         self.user_board = TilesBoard(self, "user", False, self.check_solved)
+        self.computer_board = TilesBoard(self, "computer", False, self.check_solved)
+        self.createLayout()
+
+    def createLayout(self):
+
+        # game menu button
+        self.reset_btn.pack()
+        self.start_btn.pack()
+
+        tk.Label(self, text="User").pack()
         self.user_board.pack(fill="both", expand=1)
 
-        # computer board
         tk.Label(self, text="Computer").pack()
-        self.computer_board = TilesBoard(self, "computer", False, self.check_solved)
         self.computer_board.pack(fill="both", expand=1)
 
     def on_view(self):
@@ -46,7 +52,12 @@ class GameTab(Tab):
                 self.after(i * 100, lambda tile=num_to_tiles[num]: self.computer_board.game_move(tile))
 
     def reset_game(self):
-
+        # if game is still in progress tell tiles solver to stop solving
+        if self.playing:
+            self.tiles_solver_interrupt_event.set()
+            self.playing = False
+        # enable start button
+        self.start_btn.config(state="normal")
         # remove old boards from GUI
         self.computer_board.clear_board()
         self.user_board.clear_board()
@@ -56,20 +67,23 @@ class GameTab(Tab):
         self.computer_board.place_board()
 
     def start(self):
+        # disable start button
+        self.start_btn.config(state="disabled")
         self.playing = True
-        # enable user to start palying
+        # remove other boards to solve from the queue if they exist
+        self.clear_queue()
         self.user_board.enable()
-        # let the computer play the game on a different thread to not interrupt the user
-        # TODO maybe start computer playing from when the user
-        # clicks its first btn and that's when we set playing to true ?
         self.computer_play()
 
     def computer_play(self):
-        task = TilesSolverTask(self.get_options("algo"),
-                               self.computer_board.get_num_board(),
-                               self.computer_board.board_id)
+        # the search space for a 4x4 board is too big for my computer and may crash it,
+        # so it has been limited for only user players
+        if self.board_size <= 3:
+            task = TilesSolverTask(self.get_options("algo"),
+                                   self.computer_board.get_num_board(),
+                                   self.computer_board.board_id)
 
-        self.gui_to_solver_queue.put(task)
+            self.gui_to_solver_queue.put(task)
 
     def stop_game(self, winning_board):
         print(f"board : {winning_board.name} stopped the game ")
@@ -95,3 +109,10 @@ class GameTab(Tab):
         self.stop_game(tiles_board)
         # tiles_board.disable()
         return True
+
+    def clear_queue(self):
+        try:
+            while not self.gui_to_solver_queue.empty():
+                self.gui_to_solver_queue.get()
+        except queue.Empty:
+            pass

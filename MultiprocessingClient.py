@@ -1,21 +1,20 @@
 from Window import Window
-import sys
 import multiprocessing
-import TilesSolver
+from TilesSolver import TilesSolver
 
 
 class MultiprocessingClient(object):
     def __init__(self, *args, **kwargs):
-
+        # set up objects for multi process communication
         gui_to_solver_queue = multiprocessing.Queue()
-        solver_to_gui_queue = multiprocessing.Queue()
+        self.solver_to_gui_queue = multiprocessing.Queue()
+        self.process_interrupt_event = multiprocessing.Event()
         # Set up the GUI part
-        self.window = Window(gui_to_solver_queue, solver_to_gui_queue, *args, **kwargs)
-        self.running = True
-
+        self.window = Window(gui_to_solver_queue, self.solver_to_gui_queue, self.process_interrupt_event, *args,
+                             **kwargs)
+        self.tilesSolver = TilesSolver(self.process_interrupt_event, gui_to_solver_queue, self.solver_to_gui_queue)
         # Start process for solving tiles
-        tiles_solver_process = multiprocessing.Process(target=TilesSolver.solve_tiles,
-                                                       args=(gui_to_solver_queue, solver_to_gui_queue))
+        tiles_solver_process = multiprocessing.Process(target=self.tilesSolver.solve_tiles)
         tiles_solver_process.daemon = True
         tiles_solver_process.start()
         # Start the periodic call in the GUI to check the queue
@@ -28,21 +27,3 @@ class MultiprocessingClient(object):
         # check if computer has already solved the tiles board
         self.window.after(200, self.periodic_call)
         self.window.processIncoming()
-        if not self.running:
-            # TODO exit more gracefully
-            sys.exit(1)
-
-    def clear_queue(self):
-        # TODO clear tiles solver queue
-        pass
-
-
-def foo():
-    bar = 0
-    for i in range(10000):
-        for j in range(i):
-            bar += j
-            if i % 10000 == 0 and j % 1000:
-                print(f"i {i} j {j}")
-
-    print(f"bar {bar}")

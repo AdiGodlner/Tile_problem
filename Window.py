@@ -6,7 +6,7 @@ import queue
 
 
 class Window(tk.Tk):
-    def __init__(self, gui_to_solver_queue, solver_to_gui_queue, *args, **kwargs):
+    def __init__(self, gui_to_solver_queue, solver_to_gui_queue, process_interrupt_event, *args, **kwargs):
         super().__init__()
         self.solver_to_gui_queue = solver_to_gui_queue
         self.gui_to_solver_queue = gui_to_solver_queue
@@ -18,8 +18,9 @@ class Window(tk.Tk):
         self.geometry(f"{screen_width}x{screen_height}")
         # Create notebook widget to hold tabs
         self.notebook = ttk.Notebook(self)
-        self.game_tab = None
-        self.options_tab = None
+        self.options_tab = OptionsTab(self.notebook, self.theme_name, self.set_theme)
+        self.game_tab = GameTab(self.notebook, self.options_tab.get_option, self.gui_to_solver_queue,
+                                process_interrupt_event)
         self.createLayout()
 
     def createLayout(self):
@@ -30,10 +31,6 @@ class Window(tk.Tk):
         header_label = tk.Label(self, text="Tile Game Solver",
                                 font=("Helvetica", 24))
         header_label.pack(pady=20)
-
-        # Create tabs
-        self.options_tab = OptionsTab(self.notebook, self.theme_name, self.set_theme)
-        self.game_tab = GameTab(self.notebook, self.options_tab.get_option, self.gui_to_solver_queue)
 
         self.options_tab.pack(fill="both", expand=1)
         self.game_tab.pack(fill="both", expand=1)
