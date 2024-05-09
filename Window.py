@@ -3,6 +3,7 @@ from tkinter import ttk
 from GameTab import GameTab
 from OptionsTab import OptionsTab
 import queue
+from TestTab import TestTab
 
 
 class Window(tk.Tk):
@@ -21,6 +22,7 @@ class Window(tk.Tk):
         self.options_tab = OptionsTab(self.notebook, self.theme_name, self.set_theme)
         self.game_tab = GameTab(self.notebook, self.options_tab.get_option, self.gui_to_solver_queue,
                                 process_interrupt_event)
+        self.test_tab = TestTab(self)
         self.createLayout()
 
     def createLayout(self):
@@ -37,6 +39,7 @@ class Window(tk.Tk):
         # Add tabs to notebook
         self.notebook.add(self.options_tab, text="Options")
         self.notebook.add(self.game_tab, text="Game")
+        self.notebook.add(self.test_tab, text="Test")
 
         # Bind Tab changing event
         self.notebook.bind("<<NotebookTabChanged>>", on_tab_changed)

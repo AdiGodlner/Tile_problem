@@ -21,6 +21,7 @@ class GamesFrame(tk.Frame):
 
         self.user_board = TilesBoard(self, "user", False, self.check_solved)
         self.computer_board = TilesBoard(self, "computer", False, self.check_solved)
+        self.createLayout()
 
     def createLayout(self):
 
