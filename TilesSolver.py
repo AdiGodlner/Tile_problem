@@ -223,15 +223,16 @@ def GBFS(board, interrupt_event):
     """
     goal = TilesBoard.generate_goal_state(len(board))
     totalChecks = 0
+    count = 0
     # a dict containing a state as key and a (parentState ,move ) tuple as value
     reached = {}
     frontier = []
     # heapq sorts elements in the min heap based on the first value of the tuple
-    heapq.heappush(frontier, (heuristic(board), board, None, None))
+    heapq.heappush(frontier, (heuristic(board), count, board, None, None))
 
     while (len(frontier) > 0) and (not interrupt_event.is_set()):
 
-        _, currState, parent, parentMove = heapq.heappop(frontier)
+        _,_, currState, parent, parentMove = heapq.heappop(frontier)
         totalChecks += 1
 
         if np.array_equal(goal, currState):
@@ -249,7 +250,11 @@ def GBFS(board, interrupt_event):
             childStateTuple = stateToTuple(childState)
             if childStateTuple not in reached:
                 priority = heuristic(childState)
-                heapq.heappush(frontier, (priority, childState, currStateTuple, childMove))
+                # a count is added to the tuple that is inserted into frontier as a tiebreaker
+                # in case of 2 child states with the same priority
+                # as it does not matter which child is checked if they have the same priority
+                count += 1
+                heapq.heappush(frontier, (priority, count, childState, currStateTuple, childMove))
 
     return None, totalChecks
 
@@ -403,7 +408,7 @@ def stateToTuple(state):
     return tuple(map(tuple, state))
 
 
-def searchAndPrintResult(board, goalState, funcName, searchFunc):
+def searchAndPrintResult(board, funcName, searchFunc):
     """
      prints the 'funcName'
      performs a given search algorithm 'searchFunc'
@@ -411,12 +416,12 @@ def searchAndPrintResult(board, goalState, funcName, searchFunc):
      (the path and total checks) as instructed in the assignment paper
 
     :param board: (list of lists) the initial 2D board state
-    :param goalState: (list of lists) the target 2D board state to reach
     :param funcName: (str) The name of the search function being used
     :param searchFunc: (function) The search function to execute
     """
     print(funcName)
-    path, totalChecks = searchFunc(board, goalState)
+    dummy_event = Dummy_event()
+    path, totalChecks = searchFunc(board, dummy_event)
     print(path)
     print(totalChecks)
 
@@ -442,12 +447,10 @@ def getUserBoard():
         sys.exit()
 
     # Convert the list of numbers to a 2D board
-    board = []
+    board = np.empty([3, 3])
     for i in range(3):
-        currRow = []
-        board.append(currRow)
         for j in range(3):
-            currRow.append(numbers[j + i * 3])
+            board[i, j] = numbers[j + i * 3]
 
     return board
 
@@ -467,6 +470,7 @@ class TilesSolver:
         while True:
             try:
                 task = self.gui_to_solver_queue.get(timeout=1)
+
                 if self.interrupt_event.is_set():
                     # the event is to be set to interrupt a running calculation
                     # and not to prevent from a calculation to start running
@@ -475,6 +479,7 @@ class TilesSolver:
                 print(f"got task from GUI {task}")
                 algo = ALGO_MAP.get(task.algo_name)
                 solution, _ = algo(task.tiles_board, self.interrupt_event)
+
                 if self.interrupt_event.is_set():
                     # allow GUI to interrupt process again
                     print(f"process interrupted {self.interrupt_event.is_set()}")
@@ -486,11 +491,19 @@ class TilesSolver:
                 pass
 
 
+class Dummy_event:
+    def __init__(self):
+        super().__init__()
+
+    def is_set(self):
+        return False
+
+
 if __name__ == "__main__":
     _userBoard = getUserBoard()
-    _goalState = TilesBoard.generate_goal_state(len(_userBoard))
+    # _goalState = TilesBoard.generate_goal_state(len(_userBoard))
     # run search algorithms and print the results as instructed
-    searchAndPrintResult(_userBoard, _goalState, "BFS", BFS)
-    searchAndPrintResult(_userBoard, _goalState, "IDDFS", IDDFS)
-    searchAndPrintResult(_userBoard, _goalState, "GBFS", GBFS)
-    searchAndPrintResult(_userBoard, _goalState, "AStar", AStar)
+    searchAndPrintResult(_userBoard, "BFS", BFS)
+    searchAndPrintResult(_userBoard, "IDDFS", IDDFS)
+    searchAndPrintResult(_userBoard, "GBFS", GBFS)
+    searchAndPrintResult(_userBoard, "AStar", AStar)

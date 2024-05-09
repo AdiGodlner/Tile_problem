@@ -43,7 +43,7 @@ class GameTab(Tab):
 
     def processIncoming(self, solution_msg):
 
-        if self.user_board.board_id == solution_msg.board_id:
+        if self.user_board.board_id == solution_msg.board_id and self.playing:
             num_to_tiles = self.computer_board.num_to_tiles_mapping()
 
             for i, num in enumerate(solution_msg.solution):
@@ -87,10 +87,16 @@ class GameTab(Tab):
 
     def stop_game(self, winning_board):
         print(f"board : {winning_board.name} stopped the game ")
+        print(f"self.user_board.name = {self.user_board.name}")
+        print(f"self.computer_board.name = {self.computer_board.name}")
+        if winning_board == self.user_board:
+            print("user wins ")
+            # stop computer if user has won
+            self.tiles_solver_interrupt_event.set()
+
         if self.playing:
             self.playing = False
             self.user_board.disable()
-            # TODO stop computer board if user board has won
             self.display_winning_msg(winning_board)
 
     def display_winning_msg(self, winning_board):
