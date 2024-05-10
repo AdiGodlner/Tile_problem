@@ -5,7 +5,7 @@ from tkinter import messagebox
 class ScoreFrame(tk.Frame):
 
     def __init__(self, parent):
-        super().__init__(parent, bg="blue")
+        super().__init__(parent)
         self.user_wins = 0
         self.computer_wins = 0
 

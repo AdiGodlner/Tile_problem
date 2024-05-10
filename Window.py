@@ -1,18 +1,21 @@
 import tkinter as tk
 from tkinter import ttk
+import ttkbootstrap as ttb
+from ttkbootstrap.constants import *
 from GameTab import GameTab
 from OptionsTab import OptionsTab
 import queue
 from TestTab import TestTab
 
 
-class Window(tk.Tk):
-    def __init__(self, gui_to_solver_queue, solver_to_gui_queue, process_interrupt_event, *args, **kwargs):
-        super().__init__()
+class Window(ttb.Window):
+    def __init__(self, gui_to_solver_queue, solver_to_gui_queue, process_interrupt_event,
+                 title, theme_name):
+        super().__init__(themename=theme_name)
         self.solver_to_gui_queue = solver_to_gui_queue
         self.gui_to_solver_queue = gui_to_solver_queue
-        self.title = kwargs.get("title")
-        self.theme_name = kwargs.get("themename")
+        self.title = title
+        self.theme_name = theme_name
         # Set the window size to fill the entire screen
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
@@ -47,8 +50,7 @@ class Window(tk.Tk):
         self.notebook.pack(fill=tk.BOTH, expand=True)
 
     def set_theme(self, theme):
-        pass
-        # self.style.theme_use(theme)
+        self.style.theme_use(theme)
 
     def processIncoming(self):
         """ Handle all messages currently in the queue, if any.

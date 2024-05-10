@@ -10,7 +10,7 @@ def get_algo_options():
 def get_themes():
     return ["cosmo",
             "flatly",
-            "jornal",
+            "journal",
             "litera",
             "lumen",
             "minty",

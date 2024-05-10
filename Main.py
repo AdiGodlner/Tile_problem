@@ -2,7 +2,7 @@ from MultiprocessingClient import MultiprocessingClient
 
 
 def main():
-    client = MultiprocessingClient(title="Tile game solver")
+    client = MultiprocessingClient(title="Tile game solver", theme_name="superhero")
     client.mainloop()
 
 

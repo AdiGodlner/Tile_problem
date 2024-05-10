@@ -4,14 +4,14 @@ from TilesSolver import TilesSolver
 
 
 class MultiprocessingClient(object):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, title, theme_name):
         # set up objects for multi process communication
         gui_to_solver_queue = multiprocessing.Queue()
         self.solver_to_gui_queue = multiprocessing.Queue()
         self.process_interrupt_event = multiprocessing.Event()
         # Set up the GUI part
-        self.window = Window(gui_to_solver_queue, self.solver_to_gui_queue, self.process_interrupt_event, *args,
-                             **kwargs)
+        self.window = Window(gui_to_solver_queue, self.solver_to_gui_queue, self.process_interrupt_event, title,
+                             theme_name)
         self.tilesSolver = TilesSolver(self.process_interrupt_event, gui_to_solver_queue, self.solver_to_gui_queue)
         # Start process for solving tiles
         tiles_solver_process = multiprocessing.Process(target=self.tilesSolver.solve_tiles)

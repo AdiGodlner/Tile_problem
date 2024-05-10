@@ -12,7 +12,7 @@ class TestTab(tk.Frame):
         game_space.grid(row=0, column=0, sticky="nsew", padx=5,
                         pady=5)
 
-        score_space = tk.Frame(self, bg="blue")
+        score_space = tk.Frame(self)
         score_space.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
         # Set grid weights to make the columns resizable
         self.grid_columnconfigure(0, weight=2)  # The first column gets 2/3 of the available space

@@ -8,7 +8,8 @@ class GamesFrame(tk.Frame):
 
     def __init__(self, parent, gui_to_solver_queue, tiles_solver_interrupt_event, display_winning_msg,
                  get_options):
-        super().__init__(parent)
+        super().__init__(parent, borderwidth=2, relief="groove")
+
         self.get_options = get_options
         self.display_winning_msg = display_winning_msg
         self.gui_to_solver_queue = gui_to_solver_queue
