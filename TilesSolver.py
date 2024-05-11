@@ -23,7 +23,7 @@ import heapq
 import TilesBoard
 import numpy as np
 import queue
-from TilesSolverMsgs import TilesSolverTask, TilesSolverSolution
+from TilesSolverMsgs import TilesSolverSolution
 
 
 def findChildStates(currState):

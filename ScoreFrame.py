@@ -8,10 +8,10 @@ class ScoreFrame(tk.Frame):
         super().__init__(parent)
         self.user_wins = 0
         self.computer_wins = 0
-
-        self.user_wins_label = tk.Label(self, text="User wins: 0")
-        self.user_wins_label.pack()
-        self.computer_wins_label = tk.Label(self, text="Computer wins: 0")
+        font = ("Helvetica", 24)
+        self.user_wins_label = tk.Label(self, text="User wins: 0", font=font)
+        self.user_wins_label.pack(pady=(72, 0))
+        self.computer_wins_label = tk.Label(self, text="Computer wins: 0", font=font)
         self.computer_wins_label.pack()
 
     def display_winning_msg(self, winning_board):

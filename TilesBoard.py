@@ -1,8 +1,6 @@
 import numpy as np
-
 from Tile import Tile
 import tkinter as tk
-from math import copysign
 import random
 
 
@@ -81,14 +79,17 @@ class TilesBoard(tk.Canvas):
 
     def place_board(self):
 
+        tile_size = self.board[0, 0].size
+        board_start = (self.winfo_width() - (self.board.shape[0] * tile_size)) / 2
+
         for row in self.board:
             for tile in row:
 
                 if tile.number != 0:
-                    x1 = tile.col * tile.size
-                    y1 = tile.row * tile.size
-                    x2 = x1 + tile.size
-                    y2 = y1 + tile.size
+                    x1 = board_start + (tile.col * tile_size)
+                    y1 = tile.row * tile_size
+                    x2 = x1 + tile_size
+                    y2 = y1 + tile_size
                     tile.draw(x1, x2, y1, y2)
 
     def game_move(self, tile):
@@ -99,7 +100,6 @@ class TilesBoard(tk.Canvas):
         row_diff = zero_row - row
         col_diff = zero_col - col
         if abs(row_diff) + abs(col_diff) == 1:
-
             self.animate_move(tile, col_diff, row_diff, self.default_total_frames)
 
             # update tile position

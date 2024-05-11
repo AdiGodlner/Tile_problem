@@ -1,6 +1,7 @@
 import tkinter as tk
 from TilesSolver import ALGO_MAP
 from AbstractTab import Tab
+import ttkbootstrap as ttb
 
 
 def get_algo_options():
@@ -40,43 +41,58 @@ class OptionsTab(Tab):
                         "theme": self.theme_var,
                         "size": self.size_var}
         self.set_theme = set_theme
+        self.pad_y = 24
+        self.pad_x = 24
         self.create_widgets()
 
     def on_view(self):
         pass
 
     def create_widgets(self):
-        # Create search algorithms section
-        search_algorithms_label = tk.Label(self, text="Search Algorithms:")
-        search_algorithms_label.grid(row=0, column=0, sticky="w")
+        # Add padding to the frame
+        self.grid(padx=20, pady=20)
 
-        #  create radio btn options for possible search algorithms
+        # Create search algorithms section with larger font size
+        search_algorithms_label = ttb.Label(self, text="Search Algorithms:", font=("Helvetica", 24))
+        search_algorithms_label.grid(row=0, column=0, sticky="w", pady=self.pad_y, padx=self.pad_x)
+
+        # Create radio btn options for possible search algorithms with larger font size
         for i, option in enumerate(get_algo_options()):
-            btn = tk.Radiobutton(self, text=option,
-                                 variable=self.selected_algorithm,
-                                 value=option)
-            btn.grid(row=i + 1, column=0, sticky="w")
+            btn = ttb.Radiobutton(self, text=option,
+                                  variable=self.selected_algorithm,
+                                  value=option)  # Set font size for radio buttons
+            btn.grid(row=i + 1, column=0, sticky="w", padx=self.pad_x,
+                     pady=self.pad_y)  # Apply padding to all radio buttons
 
-        # Create size selection section
-        size_label = tk.Label(self, text="Size:")
-        size_label.grid(row=0, column=2, sticky="w")
-        size_spinbox = tk.Spinbox(self, from_=2, to=10,
-                                  textvariable=self.size_var, width=5)
-        size_spinbox.grid(row=1, column=2, sticky="w")
+        # Create size selection section with larger font size
+        size_label = ttb.Label(self, text="Size:", font=("Helvetica", 24))
+        size_label.grid(row=0, column=2, sticky="w", pady=self.pad_y)  # Increase padding below
+        size_spinbox = ttb.Spinbox(self, from_=2, to=10,
+                                   textvariable=self.size_var, width=5, font=("Helvetica", 24))
+        size_spinbox.grid(row=1, column=2, sticky="w", pady=self.pad_y, padx=self.pad_x)
 
-        # Create theme selection section
-        theme_label = tk.Label(self, text="Theme:")
-        theme_label.grid(row=0, column=1, sticky="w")
+        # Create theme selection section with larger font size
+        theme_label = ttb.Label(self, text="Theme:", font=("Helvetica", 24))
+        theme_label.grid(row=0, column=1, sticky="w", pady=self.pad_y, padx=self.pad_x)
 
-        theme_menu = tk.Menubutton(self, textvariable=self.theme_var)
-        theme_menu.grid(row=1, column=1, sticky="w")
-        theme_menu_options = tk.Menu(theme_menu)
+        theme_menu = tk.Menubutton(self, textvariable=self.theme_var, font=("Helvetica", 20),
+                                   padx=self.pad_x /2,pady=self.pad_y /2)
+        theme_menu.grid(row=1, column=1, sticky="w", pady=self.pad_y, padx=self.pad_x)
+        theme_menu_options = ttb.Menu(theme_menu)
         for theme in get_themes():
             theme_menu_options.add_radiobutton(label=theme,
                                                variable=self.theme_var,
                                                command=self.on_theme_change)
 
         theme_menu.config(menu=theme_menu_options)
+
+        # Add padding between grid items
+        for i in range(3):
+            self.columnconfigure(i, pad=self.winfo_screenwidth() / 10)  # Add padding between columns
+
+        # Add padding between grid items
+        for i in range(3):
+            self.columnconfigure(i, pad=self.winfo_screenwidth() / 10)  # Add padding between columns
 
     def on_theme_change(self):
         new_theme = self.theme_var.get()

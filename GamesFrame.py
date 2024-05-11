@@ -2,13 +2,15 @@ import tkinter as tk
 from TilesSolverMsgs import TilesSolverTask
 from TilesBoard import TilesBoard
 import queue
+import ttkbootstrap as ttb
+from ttkbootstrap.constants import *
 
 
 class GamesFrame(tk.Frame):
 
     def __init__(self, parent, gui_to_solver_queue, tiles_solver_interrupt_event, display_winning_msg,
                  get_options):
-        super().__init__(parent, borderwidth=2, relief="groove")
+        super().__init__(parent, borderwidth=2)
 
         self.get_options = get_options
         self.display_winning_msg = display_winning_msg
@@ -17,8 +19,11 @@ class GamesFrame(tk.Frame):
         self.playing = False
         self.board_size = 0
 
-        self.reset_btn = tk.Button(self, text="reset ", command=self.reset_game)
-        self.start_btn = tk.Button(self, text="start ", command=self.start)
+        self.pad_y = 12
+        self.pad_x = 12
+
+        self.reset_btn = None
+        self.start_btn = None
 
         self.user_board = TilesBoard(self, "user", False, self.check_solved)
         self.computer_board = TilesBoard(self, "computer", False, self.check_solved)
@@ -26,13 +31,25 @@ class GamesFrame(tk.Frame):
 
     def createLayout(self):
 
+        # Create a frame to contain the buttons
+        button_frame = tk.Frame(self)
+        button_frame.pack(pady=self.pad_y)
+
+        self.reset_btn = ttb.Button(button_frame, text="reset", command=self.reset_game, padding=(self.pad_x, self.pad_y))
+        self.start_btn = ttb.Button(button_frame, text="start", command=self.start,
+                                    padding=(self.pad_x, self.pad_y), bootstyle=SUCCESS)
+
+        # Pack the buttons side by side in the button frame
+        self.start_btn.pack(side=tk.LEFT, padx=self.pad_x)
+        self.reset_btn.pack(side=tk.LEFT, padx=self.pad_x)
+
         self.reset_btn.pack()
         self.start_btn.pack()
 
-        tk.Label(self, text="User").pack()
+        ttb.Label(self, text="User", font=("Helvetica", 24)).pack(pady=self.pad_y)
         self.user_board.pack(fill="both", expand=1)
 
-        tk.Label(self, text="Computer").pack()
+        ttb.Label(self, text="Computer", font=("Helvetica", 24)).pack(pady=self.pad_y)
         self.computer_board.pack(fill="both", expand=1)
 
     def processIncoming(self, solution_msg):

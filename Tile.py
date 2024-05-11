@@ -1,4 +1,3 @@
-import tkinter as tk
 
 LEFT_CLICK = "<Button-1>"
 
