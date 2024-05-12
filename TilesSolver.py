@@ -1,22 +1,13 @@
 """
-3x3 sliding tile problem solver
+Sliding Tile Problem Solver
 
-This script provides implementations of 4 different search algorithms ( BFS, IDDFS, GBFS, A* )
- that solve the 3x3 sliding tile problem.
- the goal state the algorithms are trying to solve for is
-
-    0  1  2
-    3  4  5
-    6  7  8
-
- as specified in the assignment sheet.
-The initial state configuration is given by the user as a list of integers as cmd line argument
- as shown in the following example
-
-Example:
-python3 TilesSolver.py 0 6 4 7 3 5 1 2 8
+This script provides implementations of various search algorithms (BFS, IDDFS, GBFS, A*)
+for solving sliding tile problems of different sizes
+By default, it solves the 3x3 sliding tile problem based on user input
+provided as command-line arguments.
 
 """
+
 import argparse
 import sys
 import heapq
@@ -28,13 +19,14 @@ from TilesSolverMsgs import TilesSolverSolution
 
 def findChildStates(currState):
     """
-      finds child states by generating all possible states that can be reached from the current state
-      by moving the zero tile.
+    Finds child states by generating all possible states that can be reached from the current state
+    by moving the zero tile.
 
-    :param currState: (list of lists) The current state of the 3*3 board
-    :return: a list of tuples (childState, childMove)
-     where the child state is a state of the board after making the possible move childMove
-     child move is the value of the tile that was moved e.g. 8
+    Parameters:
+    - currState (numpy.ndarray): The current state of the sliding tile board.
+
+    Returns:
+    - list: A list of tuples (childState, childMove) representing child states and their corresponding moves.
     """
     childStates = []
     board_size = currState.shape[0]
@@ -55,15 +47,16 @@ def findChildStates(currState):
 
 def makeMove(board, move, zeroRow, zeroCol):
     """
-    this function makes a move on the board by swapping the zero tile with the
-    tile at the position specified by the coordinates in 'move'
+    Makes a move on the board by swapping the zero tile with the specified tile.
 
-    :param board: (list of lists) the current state of the 3*3 board
-    :param move: (tuple) the position of the tile we want to move represented as a tuple (row, column)
-    :param zeroRow: (int) the row in the board where zero is
-    :param zeroCol: (int) the column in the board where zero is
-    :return: (int) The value of the tile that was moved
+    Parameters:
+    - board (numpy.ndarray): The current state of the sliding tile board.
+    - move (tuple): The position of the tile to be moved.
+    - zeroRow (int): The row index of the zero tile.
+    - zeroCol (int): The column index of the zero tile.
 
+    Returns:
+    - int: The value of the tile that was moved.
     """
 
     board[zeroRow, zeroCol] = board[move[0], move[1]]
@@ -77,15 +70,14 @@ def findZero(board):
 
 def BFS(board, interrupt_event):
     """
-    a graph search implementation of BFS (Breadth-First Search) for the 3*3 sliding tile problem
-    this function finds an optimal path from a state 'board' to 'goalState'
-    if it exists by preforming Breadth-First Search
-    using legal sliding tile moves as described in the assignment
+    Performs Breadth-First Search (BFS) for the sliding tile problem.
 
-    :param board: (list of lists) the current state of the 3*3 board
-    :return: the path (list) which is a list of the tile values that we need to move in order to get
-    from the starting state to the goal state ( returns None if there is no such path )
-    and an integer number of the number of states it evaluated until reaching that state
+    Parameters:
+    - board (numpy.ndarray): The current state of the sliding tile board.
+    - interrupt_event (multiprocessing.Event): An event to interrupt the search process.
+
+    Returns:
+    - tuple: A tuple containing the path (list) and the total number of states evaluated during the search.
     """
     goal = TilesBoard.generate_goal_state(len(board))
     totalChecks = 0
@@ -124,16 +116,15 @@ def BFS(board, interrupt_event):
 
 def IDDFS(board, interrupt_event):
     """
-    implementation of IDDFS (Iterative Deepening Depth-First Search) for the 3*3 sliding tile problem
-    this function finds an optimal path from a state 'board' to 'goalState'
-    if it exists by preforming Iterative Deepening Depth-First Search
-    using legal sliding tile moves as described in the assignment
+     Performs Iterative Deepening Depth-First Search (IDDFS) for the sliding tile problem.
 
-    :param board: (list of lists) the current state of the 3*3 board
-    :return: the path (list) which is a list of the tile values that we need to move in order to get
-    from the starting state to the goal state ( returns None if there is no such path )
-    and an integer number of the number of states it evaluated until reaching that state
-    """
+     Parameters:
+     - board (numpy.ndarray): The current state of the sliding tile board.
+     - interrupt_event (multiprocessing.Event): An event to interrupt the search process.
+
+     Returns:
+     - tuple: A tuple containing the path (list) and the total number of states evaluated during the search.
+     """
     # reached set is added for faster lookup of reached states
     # even thou reached states are already saved to path this does not
     # increase the asymptotic memory consumption
@@ -209,17 +200,14 @@ def depthLimitedSearch(currState, goal, path, reached, maxDepth):
 
 def GBFS(board, interrupt_event):
     """
-    implementation of GBFS (Greedy Best-First Search) for the 3*3 sliding tile problem
-    this function finds a path from a state 'board' to 'goalState'
-    if it exists by preforming Greedy Best-First Search
-    using legal sliding tile moves as described in the assignment
+    Performs Greedy Best-First Search (GBFS) for the sliding tile problem.
 
-   this function uses an admissible heuristic ( more detail in the documentation of the heuristic function )
+    Parameters:
+    - board (numpy.ndarray): The current state of the sliding tile board.
+    - interrupt_event (multiprocessing.Event): An event to interrupt the search process.
 
-    :param board: (list of lists) the current state of the 3*3 board
-    :return: the path (list) which is a list of the tile values that we need to move in order to get
-    from the starting state to the goal state ( returns None if there is no such path )
-    and an integer number of the number of states it evaluated until reaching that state
+    Returns:
+    - tuple: A tuple containing the path (list) and the total number of states evaluated during the search.
     """
     goal = TilesBoard.generate_goal_state(len(board))
     totalChecks = 0
@@ -232,7 +220,7 @@ def GBFS(board, interrupt_event):
 
     while (len(frontier) > 0) and (not interrupt_event.is_set()):
 
-        _,_, currState, parent, parentMove = heapq.heappop(frontier)
+        _, _, currState, parent, parentMove = heapq.heappop(frontier)
         totalChecks += 1
 
         if np.array_equal(goal, currState):
@@ -286,17 +274,14 @@ class Node:
 
 def AStar(board, interrupt_event):
     """
-    tree implementation of A* (A Star) for the 3*3 sliding tile problem
-    this function finds a path from a state 'board' to 'goalState'
-    if it exists by preforming A* search
-    using legal sliding tile moves as described in the assignment
+    Performs A* Search for the sliding tile problem.
 
-    this function uses an admissible heuristic ( more detail in the documentation of the heuristic function )
+    Parameters:
+    - board (numpy.ndarray): The current state of the sliding tile board.
+    - interrupt_event (multiprocessing.Event): An event to interrupt the search process.
 
-    :param board: (list of lists) the current state of the 3*3 board
-    :return: the path (list) which is a list of the tile values that we need to move in order to get
-    from the starting state to the goal state ( returns None if there is no such path )
-    and an integer number of the number of states it evaluated until reaching that state
+    Returns:
+    - tuple: A tuple containing the path (list) and the total number of states evaluated during the search.
     """
     goal = TilesBoard.generate_goal_state(len(board))
     totalChecks = 0
@@ -337,13 +322,13 @@ def AStar(board, interrupt_event):
 
 def heuristic(board):
     """
-    calculates a heuristic score for a sliding tiles board
-    by counting the total number of tiles (excluding the 0 tile )
-    not in their goal row + the total number of tiles not in their goal column
-    this heuristic is admissible more details exist in the README.MD file
+    Calculates a heuristic score for a sliding tile board.
 
-    :param board: (list of lists) the current state of the 3*3 board
-    :return: (int) the heuristic score for the board
+    Parameters:
+    - board (numpy.ndarray): The current state of the sliding tile board.
+
+    Returns:
+    - int: The heuristic score for the board.
     """
     score = 0
     for row in range(len(board)):
@@ -364,12 +349,15 @@ def heuristic(board):
 
 def reconstructPath(parent, parentMove, reached):
     """
-    reconstructs the path from the initial state to the goal state based on the parent-child relationships.
+    Reconstructs the path from the initial state to the goal state based on the parent-child relationships.
 
-    :param parent: (list of lists) the parent state from which the reconstruction begins
-    :param parentMove: (int) the move (the value of the tile) that led from the parent state to the current state
-    :param reached: A dictionary mapping states to their parent states and corresponding moves
-    :return: (list) the reconstructed path  from the initial state to the goal state
+    Parameters:
+    - parent: The parent state from which the reconstruction begins.
+    - parentMove (int): The move (the value of the tile) that led from the parent state to the current state.
+    - reached (dict): A dictionary mapping states to their parent states and corresponding moves.
+
+    Returns:
+    - list: The reconstructed path from the initial state to the goal state.
     """
     path = []
     # continue reconstructing the path until reaching the initial state (parent is None)
@@ -382,42 +370,27 @@ def reconstructPath(parent, parentMove, reached):
     return path
 
 
-def transpose(board):
-    """
-    transpose a square matrix (2D list) representing a board
-
-    Parameters:
-    - board (list of lists): The square matrix to be transposed.
-
-    Returns:
-    - list of lists: .
-    :param board: (list of lists) the original 2D board
-    :return: (list of lists) the transposed matrix
-    """
-    lenBoard = len(board)
-    return [[board[j][i] for j in range(lenBoard)] for i in range(lenBoard)]
-
-
 def stateToTuple(state):
     """
-     converts a 2D board state to a hashable tuple for set membership
+    Converts a 2D board state represented as a NumPy array to a hashable tuple for set membership.
 
-    :param state:(list of lists) the 2D board state to be converted
-    :return: a hashable tuple representing the board state
+    Args:
+        state (numpy.ndarray): The 2D board state to be converted.
+
+    Returns:
+        tuple: A hashable tuple representing the board state.
     """
     return tuple(map(tuple, state))
 
 
 def searchAndPrintResult(board, funcName, searchFunc):
     """
-     prints the 'funcName'
-     performs a given search algorithm 'searchFunc'
-     on a given board state 'board',  and prints the results of said search algorithm
-     (the path and total checks) as instructed in the assignment paper
+    Prints the result of a search algorithm for the given board state.
 
-    :param board: (list of lists) the initial 2D board state
-    :param funcName: (str) The name of the search function being used
-    :param searchFunc: (function) The search function to execute
+    Parameters:
+    - board (numpy.ndarray): The initial 2D board state.
+    - funcName (str): The name of the search function being used.
+    - searchFunc (function): The search function to execute.
     """
     print(funcName)
     dummy_event = Dummy_event()
@@ -428,10 +401,10 @@ def searchAndPrintResult(board, funcName, searchFunc):
 
 def getUserBoard():
     """
-    gets the initial state of the 3x3 sliding tiles board from the user as command line arguments
+    Gets the initial state of the sliding tile board from the user as command line arguments.
 
-
-    :return: (list of lists) the 2D board representing the initial state
+    Returns:
+    - numpy.ndarray: The 2D board representing the initial state.
     """
     # get the initial state of the board as a list of numbers from the user as command line arguments
     parser = argparse.ArgumentParser(description='A script that prints the result of 4'
@@ -459,6 +432,9 @@ ALGO_MAP = {"BFS": BFS, "IDDFS": IDDFS, "GBFS": GBFS, "A*": AStar}
 
 
 class TilesSolver:
+    """
+    A class that solves sliding tile problems using various search algorithms.
+    """
 
     def __init__(self, interrupt_event, gui_to_solver_queue, solver_to_gui_queue):
         self.interrupt_event = interrupt_event
@@ -466,23 +442,26 @@ class TilesSolver:
         self.solver_to_gui_queue = solver_to_gui_queue
 
     def solve_tiles(self):
-        #  consumer for tile boards to solve
+        """
+        Solves sliding tile problems based on the received tasks.
+        """
+        #  Consumer for tile boards to solve
         while True:
             try:
                 task = self.gui_to_solver_queue.get(timeout=1)
 
                 if self.interrupt_event.is_set():
-                    # the event is to be set to interrupt a running calculation
+                    # The event is to be set to interrupt a running calculation
                     # and not to prevent from a calculation to start running
                     self.interrupt_event.clear()
 
-                print(f"got task from GUI {task}")
+                print(f"Got task from GUI {task}")
                 algo = ALGO_MAP.get(task.algo_name)
                 solution, _ = algo(task.tiles_board, self.interrupt_event)
 
                 if self.interrupt_event.is_set():
-                    # allow GUI to interrupt process again
-                    print(f"process interrupted {self.interrupt_event.is_set()}")
+                    # Allow GUI to interrupt process again
+                    print(f"Process interrupted {self.interrupt_event.is_set()}")
                     self.interrupt_event.clear()
                 else:
                     self.solver_to_gui_queue.put(TilesSolverSolution(solution, task.board_id))
@@ -492,17 +471,32 @@ class TilesSolver:
 
 
 class Dummy_event:
+    """
+    A dummy class representing an event for testing purposes.
+
+    This class mimics the behavior of an event object without implementing the full functionality.
+    It is used for testing scenarios where an event object is required but not utilized in its entirety.
+    """
+
     def __init__(self):
         super().__init__()
 
     def is_set(self):
+        """
+        Checks if the event is set.
+
+        Note:
+        This method cannot be made static as it is a mock of the multiprocessing Event.is_set() method.
+
+        Returns:
+        - bool: Always returns False, as this is a mock method for the multiprocessing Event.is_set() method.
+        """
         return False
 
 
 if __name__ == "__main__":
     _userBoard = getUserBoard()
-    # _goalState = TilesBoard.generate_goal_state(len(_userBoard))
-    # run search algorithms and print the results as instructed
+    # Run search algorithms and print the results as instructed
     searchAndPrintResult(_userBoard, "BFS", BFS)
     searchAndPrintResult(_userBoard, "IDDFS", IDDFS)
     searchAndPrintResult(_userBoard, "GBFS", GBFS)
