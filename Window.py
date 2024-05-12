@@ -103,7 +103,7 @@ class Window(ttb.Window):
         while self.solver_to_gui_queue.qsize():
             try:
                 msg = self.solver_to_gui_queue.get_nowait()
-                self.game_tab.processIncoming(msg)
+                self.game_tab.process_incoming(msg)
             except queue.Empty:
                 # Handle empty queue
                 pass

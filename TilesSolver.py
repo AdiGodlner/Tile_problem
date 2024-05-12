@@ -17,7 +17,7 @@ import queue
 from TilesSolverMsgs import TilesSolverSolution
 
 
-def findChildStates(currState):
+def find_child_states(currState):
     """
     Finds child states by generating all possible states that can be reached from the current state
     by moving the zero tile.
@@ -31,21 +31,21 @@ def findChildStates(currState):
     childStates = []
     board_size = currState.shape[0]
     # find the coordinates of the zero tile
-    zeroRow, zeroCol = findZero(currState)
-    possibleMoves = TilesBoard.findPossibleMoves(board_size, zeroRow, zeroCol)
+    zeroRow, zeroCol = find_zero(currState)
+    possibleMoves = TilesBoard.find_possible_moves(board_size, zeroRow, zeroCol)
 
     # generate child states by making moves
     for move in possibleMoves:
         # create a deep copy of the current state to avoid modifying the original state
         childState = np.copy(currState)
         # make the move and get the value of the moved tile
-        movedTileValue = makeMove(childState, move, zeroRow, zeroCol)
+        movedTileValue = make_move(childState, move, zeroRow, zeroCol)
         childStates.append((childState, movedTileValue))
 
     return childStates
 
 
-def makeMove(board, move, zeroRow, zeroCol):
+def make_move(board, move, zeroRow, zeroCol):
     """
     Makes a move on the board by swapping the zero tile with the specified tile.
 
@@ -64,7 +64,7 @@ def makeMove(board, move, zeroRow, zeroCol):
     return board[zeroRow, zeroCol]
 
 
-def findZero(board):
+def find_zero(board):
     return np.argwhere(board == 0)[0]
 
 
@@ -95,19 +95,19 @@ def BFS(board, interrupt_event):
         totalChecks += 1
 
         if np.array_equal(goal, currState):
-            path = reconstructPath(parent, parentMove, reached)
+            path = reconstruct_path(parent, parentMove, reached)
             return path, totalChecks
 
         # adding the current state to the reached dict
         # we convert the current state to a tuple because dictionary keys must be Hashable
-        currStateTuple = stateToTuple(currState)
+        currStateTuple = state_to_tuple(currState)
         reached[currStateTuple] = (parent, parentMove)
 
-        childStates = findChildStates(currState)
+        childStates = find_child_states(currState)
         # add child states to the frontier queue
         for childState, childMove in childStates:
             # we convert the childState to a tuple because dictionary keys must Hashable
-            childStateTuple = stateToTuple(childState)
+            childStateTuple = state_to_tuple(childState)
             if childStateTuple not in reached:
                 frontier.put((childState, currStateTuple, childMove))
 
@@ -137,7 +137,7 @@ def IDDFS(board, interrupt_event):
     # IDDFS needs to stop somewhere if there is no solution so 30 seams as good as any
     while depth < 30 and (not interrupt_event.is_set()):
 
-        foundSolution, currChecks = depthLimitedSearch(board, goal, path, reached, depth)
+        foundSolution, currChecks = depth_limited_search(board, goal, path, reached, depth)
         depth += 1
         totalChecks += currChecks
 
@@ -148,19 +148,19 @@ def IDDFS(board, interrupt_event):
     return None, totalChecks
 
 
-def depthLimitedSearch(currState, goal, path, reached, maxDepth):
+def depth_limited_search(currState, goal, path, reached, maxDepth):
     """
-    performs a depth limited search to find a path from the current state to the goal state
+    Performs a depth-limited search to find a path from the current state to the goal state.
 
-    :param currState: (list of lists) the current state of the 3*3 board
-    :param goal: (list of lists) the state of the 3*3 board we want to get to
-    :param path: (list) a list to insert the move order to once a path is found
-    :param reached: (set) a set of states that have been visited to prevent looping
-     over states that have already been explored on the way to the current state
-    :param maxDepth: the maximum depth to explore in the search
-    :return: a tuple (foundSolution, totalChecks).
-       foundSolution (bool): True if a solution is found and False otherwise
-       totalChecks (int): The total number of states checked during the search
+    :param currState: (numpy.ndarray) The current state of the 3*3 board.
+    :param goal: (numpy.ndarray) The state of the 3*3 board we want to get to.
+    :param path: (list) A list to insert the move order to once a path is found.
+    :param reached: (set) A set of states that have been visited to prevent looping over states
+        that have already been explored on the way to the current state.
+    :param maxDepth: The maximum depth to explore in the search.
+    :return: A tuple (foundSolution, totalChecks).
+             foundSolution (bool): True if a solution is found and False otherwise.
+             totalChecks (int): The total number of states checked during the search.
     """
 
     totalChecks = 1
@@ -172,18 +172,18 @@ def depthLimitedSearch(currState, goal, path, reached, maxDepth):
         return False, totalChecks
 
     # convert the current state to a tuple because elements of a set must be hashable
-    currStateTuple = stateToTuple(currState)
+    currStateTuple = state_to_tuple(currState)
     reached.add(currStateTuple)
 
-    childStates = findChildStates(currState)
+    childStates = find_child_states(currState)
     # Explore child states
     for childState, childMove in childStates:
         # convert the childState to a tuple because elements of a set must be hashable
-        childStateTuple = stateToTuple(childState)
+        childStateTuple = state_to_tuple(childState)
         # check if the child state has not been visited
         if childStateTuple not in reached:
             # recursively perform depth-limited search on the child state
-            foundSolution, checks = depthLimitedSearch(childState, goal, path, reached, maxDepth - 1)
+            foundSolution, checks = depth_limited_search(childState, goal, path, reached, maxDepth - 1)
             totalChecks += checks
 
             # if a solution is found, update the path and return
@@ -224,18 +224,18 @@ def GBFS(board, interrupt_event):
         totalChecks += 1
 
         if np.array_equal(goal, currState):
-            path = reconstructPath(parent, parentMove, reached)
+            path = reconstruct_path(parent, parentMove, reached)
             return path, totalChecks
         # adding the current state to the reached dict
         # we convert the current state to a tuple because dictionary keys must be Hashable
-        currStateTuple = stateToTuple(currState)
+        currStateTuple = state_to_tuple(currState)
         reached[currStateTuple] = (parent, parentMove)
 
-        childStates = findChildStates(currState)
+        childStates = find_child_states(currState)
         # add child states to the frontier heap
         for childState, childMove in childStates:
             # we convert the childState to a tuple because dictionary keys must Hashable
-            childStateTuple = stateToTuple(childState)
+            childStateTuple = state_to_tuple(childState)
             if childStateTuple not in reached:
                 priority = heuristic(childState)
                 # a count is added to the tuple that is inserted into frontier as a tiebreaker
@@ -307,7 +307,7 @@ def AStar(board, interrupt_event):
 
             return path, totalChecks
 
-        childStates = findChildStates(currState)
+        childStates = find_child_states(currState)
         # add child states to the frontier heap
         for childState, childMove in childStates:
             # the cost of any move is the cost of its parent + 1
@@ -347,7 +347,7 @@ def heuristic(board):
     return score
 
 
-def reconstructPath(parent, parentMove, reached):
+def reconstruct_path(parent, parentMove, reached):
     """
     Reconstructs the path from the initial state to the goal state based on the parent-child relationships.
 
@@ -370,7 +370,7 @@ def reconstructPath(parent, parentMove, reached):
     return path
 
 
-def stateToTuple(state):
+def state_to_tuple(state):
     """
     Converts a 2D board state represented as a NumPy array to a hashable tuple for set membership.
 
@@ -383,7 +383,7 @@ def stateToTuple(state):
     return tuple(map(tuple, state))
 
 
-def searchAndPrintResult(board, funcName, searchFunc):
+def search_and_print_result(board, funcName, searchFunc):
     """
     Prints the result of a search algorithm for the given board state.
 
@@ -393,13 +393,13 @@ def searchAndPrintResult(board, funcName, searchFunc):
     - searchFunc (function): The search function to execute.
     """
     print(funcName)
-    dummy_event = Dummy_event()
+    dummy_event = DummyEvent()
     path, totalChecks = searchFunc(board, dummy_event)
     print(path)
     print(totalChecks)
 
 
-def getUserBoard():
+def get_user_board():
     """
     Gets the initial state of the sliding tile board from the user as command line arguments.
 
@@ -470,7 +470,7 @@ class TilesSolver:
                 pass
 
 
-class Dummy_event:
+class DummyEvent:
     """
     A dummy class representing an event for testing purposes.
 
@@ -495,9 +495,9 @@ class Dummy_event:
 
 
 if __name__ == "__main__":
-    _userBoard = getUserBoard()
+    _userBoard = get_user_board()
     # Run search algorithms and print the results as instructed
-    searchAndPrintResult(_userBoard, "BFS", BFS)
-    searchAndPrintResult(_userBoard, "IDDFS", IDDFS)
-    searchAndPrintResult(_userBoard, "GBFS", GBFS)
-    searchAndPrintResult(_userBoard, "AStar", AStar)
+    search_and_print_result(_userBoard, "BFS", BFS)
+    search_and_print_result(_userBoard, "IDDFS", IDDFS)
+    search_and_print_result(_userBoard, "GBFS", GBFS)
+    search_and_print_result(_userBoard, "AStar", AStar)

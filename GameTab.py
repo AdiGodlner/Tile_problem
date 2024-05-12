@@ -42,9 +42,9 @@ class GameTab(Tab):
         self.game_space = GamesFrame(self, self.gui_to_solver_queue, tiles_solver_interrupt_event,
                                      self.score_space.display_winning_msg, get_options)
 
-        self.createLayout()
+        self.create_layout()
 
-    def createLayout(self):
+    def create_layout(self):
         """
         Creates the layout for the game tab.
         """
@@ -67,11 +67,11 @@ class GameTab(Tab):
             self.game_space.board_size = size
             self.game_space.reset_game()
 
-    def processIncoming(self, solution_msg):
+    def process_incoming(self, solution_msg):
         """
         Processes incoming messages.
 
         Args:
             solution_msg: The solution message to process.
         """
-        self.game_space.processIncoming(solution_msg)
+        self.game_space.process_incoming(solution_msg)

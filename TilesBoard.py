@@ -295,7 +295,7 @@ def make_random_moves(board, board_size, zero_row, zero_col):
 
     """
     for _ in range(100):
-        possible_moves = findPossibleMoves(board_size, zero_row, zero_col)
+        possible_moves = find_possible_moves(board_size, zero_row, zero_col)
         random_move = random.choice(possible_moves)
         # swap tiles
         row = random_move[0]
@@ -307,7 +307,7 @@ def make_random_moves(board, board_size, zero_row, zero_col):
         zero_col = col
 
 
-def findPossibleMoves(board_size, zeroRow, zeroCol):
+def find_possible_moves(board_size, zeroRow, zeroCol):
     """
     Generates a list of possible moves in a square game board.
 

@@ -61,9 +61,9 @@ class GamesFrame(tk.Frame):
 
         self.user_board = TilesBoard(self, "user", False, self.check_solved)
         self.computer_board = TilesBoard(self, "computer", False, self.check_solved)
-        self.createLayout()
+        self.create_layout()
 
-    def createLayout(self):
+    def create_layout(self):
         """
         Creates the layout of the game frame.
         """
@@ -85,7 +85,7 @@ class GamesFrame(tk.Frame):
         ttb.Label(self, text="Computer", font=("Helvetica", 24)).pack(pady=self.pad_y)
         self.computer_board.pack(fill="both", expand=1)
 
-    def processIncoming(self, solution_msg):
+    def process_incoming(self, solution_msg):
         """
         Processes incoming messages.
 
@@ -150,11 +150,7 @@ class GamesFrame(tk.Frame):
         Args:
             winning_board: The winning board.
         """
-        print(f"board : {winning_board.name} stopped the game ")
-        print(f"self.user_board.name = {self.user_board.name}")
-        print(f"self.computer_board.name = {self.computer_board.name}")
         if winning_board == self.user_board:
-            print("user wins ")
             # stop computer if user has won
             self.tiles_solver_interrupt_event.set()
 
