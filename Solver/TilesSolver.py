@@ -11,7 +11,7 @@ provided as command-line arguments.
 import argparse
 import sys
 import heapq
-import TilesBoard
+from Components import TilesBoard
 import numpy as np
 import queue
 from TilesSolverMsgs import TilesSolverSolution

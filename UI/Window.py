@@ -7,8 +7,8 @@ the GUI and the solver process.
 
 import tkinter as tk
 import ttkbootstrap as ttb
-from GameTab import GameTab
-from OptionsTab import OptionsTab
+from Tabs.GameTab import GameTab
+from Tabs.OptionsTab import OptionsTab
 import queue
 
 

@@ -6,9 +6,9 @@ and manages periodic calls to update the GUI.
 
 """
 
-from Window import Window
+from UI.Window import Window
 import multiprocessing
-from TilesSolver import TilesSolver
+from Solver.TilesSolver import TilesSolver
 
 
 class MultiprocessingClient(object):
