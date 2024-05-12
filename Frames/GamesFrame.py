@@ -9,8 +9,8 @@ import tkinter as tk
 import queue
 import ttkbootstrap as ttb
 from ttkbootstrap.constants import *
-from TilesSolverMsgs import TilesSolverTask
-from TilesBoard import TilesBoard
+from Solver.TilesSolverMsgs import TilesSolverTask
+from Components.TilesBoard import TilesBoard
 
 
 class GamesFrame(tk.Frame):

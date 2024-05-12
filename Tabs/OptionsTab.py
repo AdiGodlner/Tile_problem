@@ -12,8 +12,8 @@ Functions:
 
 import tkinter as tk
 import ttkbootstrap as ttb
-from TilesSolver import ALGO_MAP
-from AbstractTab import Tab
+from Solver.TilesSolver import ALGO_MAP
+from Tabs.AbstractTab import Tab
 
 
 def get_algo_options():

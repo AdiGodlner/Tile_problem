@@ -5,7 +5,7 @@ This script initializes and starts the MultiprocessingClient, which serves as th
 for the tile game solver application.
 """
 
-from MultiprocessingClient import MultiprocessingClient
+from Multiprocessing.MultiprocessingClient import MultiprocessingClient
 
 
 def main():

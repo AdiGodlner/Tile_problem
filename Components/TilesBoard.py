@@ -6,7 +6,7 @@ Classes:
 """
 
 import numpy as np
-from Tile import Tile
+from Components.Tile import Tile
 import tkinter as tk
 import random
 

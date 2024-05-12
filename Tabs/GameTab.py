@@ -6,9 +6,9 @@ Classes:
 
 """
 
-from AbstractTab import Tab
-from GamesFrame import GamesFrame
-from ScoreFrame import ScoreFrame
+from Tabs.AbstractTab import Tab
+from Frames.GamesFrame import GamesFrame
+from Frames.ScoreFrame import ScoreFrame
 
 
 class GameTab(Tab):
